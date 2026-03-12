@@ -1,0 +1,69 @@
+<!DOCTYPE html SYSTEM "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>Indefinite - Adjective - Noun</title>
+<meta charset="utf-8"/>
+<link rel="stylesheet" href="node_modules/treeflex/dist/css/treeflex.css"/>
+<link rel="stylesheet" href="rulegen.css"/>
+<script>
+function toApp(msg) {
+window.chrome.webview.postMessage(msg);
+return false;
+}
+</script>
+</head>
+<body>
+<table>
+<tr>
+<td valign="top">
+<div class="tf-tree tf-gap-sm">
+<ul>
+<li><span class="tf-nc" id="p.1" onclick="toApp('p.1')" oncontextmenu="toApp('p.1')"">phrase<span class="language">src</span></span>
+<ul><li><span class="tf-nc" id="w.2" onclick="toApp('w.2')" oncontextmenu="toApp('w.2')"">word<span class="index">1</span></span>
+<ul>
+<li><span class="tf-nc category" id="c.3" onclick="toApp('c.3')" oncontextmenu="toApp('c.3')"">cat:indef</span></li>
+</ul>
+</li><li><span class="tf-nc" id="w.4" onclick="toApp('w.4')" oncontextmenu="toApp('w.4')"">word<span class="index">2</span></span>
+<ul>
+<li><span class="tf-nc category" id="c.5" onclick="toApp('c.5')" oncontextmenu="toApp('c.5')"">cat:adj</span></li>
+</ul>
+</li><li><span class="tf-nc" id="w.6" onclick="toApp('w.6')" oncontextmenu="toApp('w.6')"">word<span class="index">3</span></span>
+<ul>
+<li><span class="tf-nc category" id="c.7" onclick="toApp('c.7')" oncontextmenu="toApp('c.7')"">cat:n</span></li>
+</ul>
+</li></ul></li></ul>
+</div>
+</td>
+<td>
+<span class="arrow"/>
+</td>
+<td valign="top">
+<div class="tf-tree tf-gap-sm">
+<ul>
+<li><span class="tf-nc" id="p.8" onclick="toApp('p.8')" oncontextmenu="toApp('p.8')"">phrase<span class="language">tgt</span></span>
+<ul><li><span class="tf-nc" id="w.9" onclick="toApp('w.9')" oncontextmenu="toApp('w.9')"">word<span class="index">1</span></span>
+<ul>
+<li><span class="tf-nc affix" id="a.11" onclick="toApp('a.11')" oncontextmenu="toApp('a.11')"">suffix</span><ul><li><span class="tf-nc feature" id="f.12" onclick="toApp('f.12')" oncontextmenu="toApp('f.12')"">gender:α</span></li>
+</ul></li>
+<li><span class="tf-nc affix" id="a.13" onclick="toApp('a.13')" oncontextmenu="toApp('a.13')"">suffix</span><ul><li><span class="tf-nc feature" id="f.14" onclick="toApp('f.14')" oncontextmenu="toApp('f.14')"">number:β</span></li>
+</ul></li>
+</ul>
+</li><li><span class="tf-nc" id="w.15" onclick="toApp('w.15')" oncontextmenu="toApp('w.15')"">word(<span style="font-style:italic; font-size:smaller">head</span>)<span class="index">3</span></span>
+<ul>
+<li><span class="tf-nc feature" id="f.17" onclick="toApp('f.17')" oncontextmenu="toApp('f.17')"">gender:α</span></li>
+<li><span class="tf-nc affix" id="a.18" onclick="toApp('a.18')" oncontextmenu="toApp('a.18')"">suffix</span><ul><li><span class="tf-nc feature" id="f.19" onclick="toApp('f.19')" oncontextmenu="toApp('f.19')"">number:β</span></li>
+</ul></li>
+</ul>
+</li><li><span class="tf-nc" id="w.20" onclick="toApp('w.20')" oncontextmenu="toApp('w.20')"">word<span class="index">2</span></span>
+<ul>
+<li><span class="tf-nc affix" id="a.22" onclick="toApp('a.22')" oncontextmenu="toApp('a.22')"">suffix</span><ul><li><span class="tf-nc feature" id="f.23" onclick="toApp('f.23')" oncontextmenu="toApp('f.23')"">gender:α</span></li>
+</ul></li>
+<li><span class="tf-nc affix" id="a.24" onclick="toApp('a.24')" oncontextmenu="toApp('a.24')"">prefix</span><ul><li><span class="tf-nc feature" id="f.25" onclick="toApp('f.25')" oncontextmenu="toApp('f.25')"">number:β</span></li>
+</ul></li>
+</ul>
+</li></ul></li></ul>
+</div>
+</td>
+</tr>
+</table>
+</body>
+</html>

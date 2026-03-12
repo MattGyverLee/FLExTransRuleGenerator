@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flextrans-rule-generator"
+version = "1.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "PyQt6>=6.6",
+    "PyQt6-WebEngine>=6.6",
+    "lxml>=5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-qt>=4.3",
+]
+
+[project.scripts]
+flextrans-rule-gen = "flextrans_rule_generator.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

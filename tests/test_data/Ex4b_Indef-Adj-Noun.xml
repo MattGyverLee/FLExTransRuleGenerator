@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE FLExTransRuleGenerator PUBLIC " -//XMLmind//DTD FLExTransRuleGenerator//EN"
+"FLExTransRuleGenerator.dtd">
+<FLExTransRuleGenerator>
+  <FLExTransRules>
+    <FLExTransRule name="Indefinite - Adjective - Noun">
+      <Source>
+        <Phrase>
+          <Words>
+            <Word id="1" category="indef" head="no">
+              <Features />
+              <Affixes />
+            </Word>
+            <Word id="2" category="adj" head="no">
+              <Features />
+              <Affixes />
+            </Word>
+            <Word id="3" category="n" head="no">
+              <Features />
+              <Affixes />
+            </Word>
+          </Words>
+        </Phrase>
+      </Source>
+      <Target>
+        <Phrase>
+          <Words>
+            <Word id="1" category="" head="no">
+              <Features />
+              <Affixes>
+                <Affix type="suffix">
+                  <Features>
+                    <Feature match="α" label="gender" />
+                  </Features>
+                </Affix>
+                <Affix type="suffix">
+                  <Features>
+                    <Feature match="β" label="number" />
+                  </Features>
+                </Affix>
+              </Affixes>
+            </Word>
+            <Word id="3" category="" head="yes">
+              <Features>
+                <Feature match="α" label="gender" />
+              </Features>
+              <Affixes>
+                <Affix type="suffix">
+                  <Features>
+                    <Feature match="β" label="number" />
+                  </Features>
+                </Affix>
+              </Affixes>
+            </Word>
+            <Word id="2" category="" head="no">
+              <Features />
+              <Affixes>
+                <Affix type="suffix">
+                  <Features>
+                    <Feature match="α" label="gender" />
+                  </Features>
+                </Affix>
+                <Affix type="prefix">
+                  <Features>
+                    <Feature match="β" label="number" />
+                  </Features>
+                </Affix>
+              </Affixes>
+            </Word>
+          </Words>
+        </Phrase>
+      </Target>
+    </FLExTransRule>
+  </FLExTransRules>
+</FLExTransRuleGenerator>

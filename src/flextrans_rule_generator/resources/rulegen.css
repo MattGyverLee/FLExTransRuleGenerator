@@ -1,0 +1,40 @@
+/* rulegen.css for FLExTrans ruyle generation */
+
+.arrow:before {
+    content:" → ";
+}
+.arrow {
+    font-size:x-large;
+    font-size:250%;
+}
+
+.affix {
+    color:maroon;
+}
+
+.category {
+    color:red;
+}
+
+.feature {
+    color:blue;
+}
+
+.head:before {
+    content:"(head)";    
+}
+.head {
+    font-style:italic;
+}
+    
+.index {
+    font-size:x-small;
+    font-style:italic;
+    vertical-align:sub;
+}
+
+.language {
+    font-size:smaller;
+    font-style:italic;
+    vertical-align:sub;
+}

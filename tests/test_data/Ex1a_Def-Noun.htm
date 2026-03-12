@@ -1,0 +1,53 @@
+<!DOCTYPE html SYSTEM "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>Definite - Noun</title>
+<meta charset="utf-8"/>
+<link rel="stylesheet" href="node_modules/treeflex/dist/css/treeflex.css"/>
+<link rel="stylesheet" href="rulegen.css"/>
+<script>
+function toApp(msg) {
+window.chrome.webview.postMessage(msg);
+return false;
+}
+</script>
+</head>
+<body>
+<table>
+<tr>
+<td valign="top">
+<div class="tf-tree tf-gap-sm">
+<ul>
+<li><span class="tf-nc" id="p.1" onclick="toApp('p.1')" oncontextmenu="toApp('p.1')"">phrase<span class="language">src</span></span>
+<ul><li><span class="tf-nc" id="w.2" onclick="toApp('w.2')" oncontextmenu="toApp('w.2')"">word<span class="index">1</span></span>
+<ul>
+<li><span class="tf-nc category" id="c.3" onclick="toApp('c.3')" oncontextmenu="toApp('c.3')"">cat:def</span></li>
+</ul>
+</li><li><span class="tf-nc" id="w.4" onclick="toApp('w.4')" oncontextmenu="toApp('w.4')"">word<span class="index">2</span></span>
+<ul>
+<li><span class="tf-nc category" id="c.5" onclick="toApp('c.5')" oncontextmenu="toApp('c.5')"">cat:n</span></li>
+</ul>
+</li></ul></li></ul>
+</div>
+</td>
+<td>
+<span class="arrow"/>
+</td>
+<td valign="top">
+<div class="tf-tree tf-gap-sm">
+<ul>
+<li><span class="tf-nc" id="p.6" onclick="toApp('p.6')" oncontextmenu="toApp('p.6')"">phrase<span class="language">tgt</span></span>
+<ul><li><span class="tf-nc" id="w.7" onclick="toApp('w.7')" oncontextmenu="toApp('w.7')"">word<span class="index">1</span></span>
+<ul>
+<li><span class="tf-nc feature" id="f.9" onclick="toApp('f.9')" oncontextmenu="toApp('f.9')"">gender:α</span></li>
+</ul>
+</li><li><span class="tf-nc" id="w.10" onclick="toApp('w.10')" oncontextmenu="toApp('w.10')"">word(<span style="font-style:italic; font-size:smaller">head</span>)<span class="index">2</span></span>
+<ul>
+<li><span class="tf-nc feature" id="f.12" onclick="toApp('f.12')" oncontextmenu="toApp('f.12')"">gender:α</span></li>
+</ul>
+</li></ul></li></ul>
+</div>
+</td>
+</tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FLExData>
+    <SourceData name="Spanish-FLExTrans-Exp4">
+        <Categories>
+            <FLExCategory abbr="adj"/>
+            <FLExCategory abbr="adv"/>
+            <FLExCategory abbr="conj"/>
+            <FLExCategory abbr="coordconj"/>
+            <FLExCategory abbr="cop"/>
+            <FLExCategory abbr="def"/>
+            <FLExCategory abbr="det"/>
+            <FLExCategory abbr="indf"/>
+            <FLExCategory abbr="n"/>
+            <FLExCategory abbr="nprop"/>
+            <FLExCategory abbr="prep"/>
+            <FLExCategory abbr="prepart"/>
+            <FLExCategory abbr="pro"/>
+            <FLExCategory abbr="v"/>
+        </Categories>
+        <Features>
+            <FLExFeature name="absolute tense">
+                <Values>
+                    <FLExFeatureValue abbr="fut"/>
+                    <FLExFeatureValue abbr="pret"/>
+                    <FLExFeatureValue abbr="prs"/>
+                    <FLExFeatureValue abbr="pst"/>
+                </Values>
+            </FLExFeature>
+            <FLExFeature name="case">
+                <Values>
+                    <FLExFeatureValue abbr="acc"/>
+                    <FLExFeatureValue abbr="dat"/>
+                    <FLExFeatureValue abbr="nom"/>
+                </Values>
+            </FLExFeature>
+            <FLExFeature name="gender">
+                <Values>
+                    <FLExFeatureValue abbr="f"/>
+                    <FLExFeatureValue abbr="m"/>
+                    <FLExFeatureValue abbr="?"/>
+                </Values>
+            </FLExFeature>
+            <FLExFeature name="number">
+                <Values>
+                    <FLExFeatureValue abbr="pl"/>
+                    <FLExFeatureValue abbr="sg"/>
+                </Values>
+            </FLExFeature>
+            <FLExFeature name="person">
+                <Values>
+                    <FLExFeatureValue abbr="1"/>
+                    <FLExFeatureValue abbr="2"/>
+                    <FLExFeatureValue abbr="3"/>
+                </Values>
+            </FLExFeature>
+        </Features>
+    </SourceData>
+    <TargetData name="French-FLExTrans-Exp4">
+        <Categories>
+            <FLExCategory abbr="adj"/>
+            <FLExCategory abbr="adv"/>
+            <FLExCategory abbr="conj"/>
+            <FLExCategory abbr="coordconj"/>
+            <FLExCategory abbr="cop"/>
+            <FLExCategory abbr="def"/>
+            <FLExCategory abbr="det"/>
+            <FLExCategory abbr="existmrkr"/>
+            <FLExCategory abbr="indf"/>
+            <FLExCategory abbr="n"/>
+            <FLExCategory abbr="nprop"/>
+            <FLExCategory abbr="prep"/>
+            <FLExCategory abbr="prepart"/>
+            <FLExCategory abbr="pro"/>
+            <FLExCategory abbr="v"/>
+        </Categories>
+        <Features>
+            <FLExFeature name="absolute tense">
+                <Values>
+                    <FLExFeatureValue abbr="fut"/>
+                    <FLExFeatureValue abbr="pret"/>
+                    <FLExFeatureValue abbr="prs"/>
+                    <FLExFeatureValue abbr="pst"/>
+                </Values>
+            </FLExFeature>
+            <FLExFeature name="case">
+                <Values>
+                    <FLExFeatureValue abbr="acc"/>
+                    <FLExFeatureValue abbr="dat"/>
+                    <FLExFeatureValue abbr="nom"/>
+                </Values>
+            </FLExFeature>
+            <FLExFeature name="gender">
+                <Values>
+                    <FLExFeatureValue abbr="f"/>
+                    <FLExFeatureValue abbr="m"/>
+                    <FLExFeatureValue abbr="?"/>
+                </Values>
+            </FLExFeature>
+            <FLExFeature name="number">
+                <Values>
+                    <FLExFeatureValue abbr="pl"/>
+                    <FLExFeatureValue abbr="sg"/>
+                </Values>
+            </FLExFeature>
+            <FLExFeature name="person">
+                <Values>
+                    <FLExFeatureValue abbr="1"/>
+                    <FLExFeatureValue abbr="2"/>
+                    <FLExFeatureValue abbr="3"/>
+                </Values>
+            </FLExFeature>
+        </Features>
+    </TargetData>
+</FLExData>
