@@ -9,7 +9,7 @@
 #   instead of launching the C# exe as a subprocess.
 #
 #   Version 3.15.1 - 3/6/26 - Ron Lockwood
-#    Upgraded to PyQt6 and Python 3.13.
+#    Upgraded to PyQt5 and Python 3.11.
 #
 #   Runs the Rule Assistant to create Apertium transfer rules.
 #
@@ -21,10 +21,25 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
 
+# CRITICAL: Set Qt attribute before ANY other imports that might create QCoreApplication
+try:
+    from PyQt6.QtCore import Qt, QCoreApplication
+    from PyQt6.QtWidgets import QApplication
+    # Try to set on both - one might work depending on when QApplication was created
+    try:
+        QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts, True)
+    except RuntimeError:
+        pass
+    try:
+        QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts, True)
+    except RuntimeError:
+        pass
+except Exception:
+    pass
+
 from flextoolslib import *
 
-from PyQt6.QtCore import QCoreApplication, QUrl
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QUrl
 
 import Mixpanel
 import InterlinData

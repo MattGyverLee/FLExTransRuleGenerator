@@ -1,9 +1,134 @@
 from pathlib import Path
 from typing import Optional
+import sys
+import os
 
-from PyQt6.QtCore import Qt, QSettings, QUrl
-from PyQt6.QtGui import QAction
-from PyQt6.QtWidgets import (
+# *** CRITICAL: Ensure we use system Python 3.11's packages ***
+_sys_py311_site = r"C:\Program Files\Python311\Lib\site-packages"
+if _sys_py311_site not in sys.path:
+    sys.path.insert(0, _sys_py311_site)
+
+# IMMEDIATE TEST: Confirm this module is being imported at all
+try:
+    with open(r"C:\Users\thoua\RuleGeneratorControl_IMPORTED.txt", 'w') as f:
+        f.write("Module import started\n")
+except Exception as e:
+    pass
+
+# NOTE: Qt.AA_ShareOpenGLContexts is already set in RuleAssistantPY.py
+# before QApplication is created, so we don't set it here
+from PyQt5.QtCore import Qt, QCoreApplication
+
+# CRITICAL: Try to import WebEngine
+QWebEngineView = None
+QWebChannel = None
+WEBENGINE_AVAILABLE = False
+
+# Direct import attempt - report any real errors
+_WEBENGINE_ERROR = None
+try:
+    from PyQt5.QtWebEngineWidgets import QWebEngineView as _TEST_QWE
+    from PyQt5.QtWebChannel import QWebChannel as _TEST_QWC
+    _WEBENGINE_WORKS = True
+except ImportError as _imp_err:
+    _WEBENGINE_WORKS = False
+    _WEBENGINE_ERROR = str(_imp_err)
+except Exception as _gen_err:
+    _WEBENGINE_WORKS = False
+    _WEBENGINE_ERROR = f"{type(_gen_err).__name__}: {str(_gen_err)}"
+
+# CRITICAL: Write the import error to a file immediately so we can see what's failing
+try:
+    with open(r"C:\Users\thoua\RuleGeneratorControl_ERROR.txt", 'w') as _f:
+        _f.write(f"WebEngine import works: {_WEBENGINE_WORKS}\n")
+        if not _WEBENGINE_WORKS and _WEBENGINE_ERROR:
+            _f.write(f"Error: {_WEBENGINE_ERROR}\n")
+        else:
+            _f.write("No error captured\n")
+except Exception as _e:
+    pass
+
+# Set up error logging for WebEngine import debugging
+# Use a dedicated log file to avoid file locking issues
+_webengine_log_path = r"C:\Users\thoua\RuleGeneratorControl_WebEngine.log"
+def _log_webengine_debug(msg):
+    try:
+        with open(_webengine_log_path, 'a') as f:
+            f.write(f"{msg}\n")
+    except Exception as _e:
+        # If logging fails, just continue - don't crash
+        pass
+
+# Clear previous log and start fresh
+try:
+    with open(_webengine_log_path, 'w') as f:
+        f.write("=== rule_generator_control.py WebEngine import logging ===\n")
+except:
+    pass
+
+_log_webengine_debug(f"\n=== rule_generator_control.py import started ===")
+_log_webengine_debug(f"sys.path[0:3]: {sys.path[0:3]}")
+
+# First, check if imports were cached by RuleAssistantPY.py before flextoolslib was loaded
+_webengine_cache = sys.modules.get('__webengine_cache__', {})
+
+# DIRECT FILE WRITE - bypass any logging issues
+try:
+    with open(r"C:\Users\thoua\RuleGeneratorControl_CACHE.log", 'w') as _f:
+        _f.write(f"Cache object exists: {_webengine_cache is not None}\n")
+        _f.write(f"Cache bool: {bool(_webengine_cache)}\n")
+        _f.write(f"Cache keys: {list(_webengine_cache.keys()) if _webengine_cache else 'NONE'}\n")
+        _f.write(f"Has QWebEngineView: {'QWebEngineView' in _webengine_cache}\n")
+        _f.write(f"Has QWebChannel: {'QWebChannel' in _webengine_cache}\n")
+except Exception as _e:
+    pass
+
+_log_webengine_debug(f"Cache exists: {bool(_webengine_cache)}")
+_log_webengine_debug(f"Cache keys: {list(_webengine_cache.keys()) if _webengine_cache else 'NONE'}")
+
+if 'QWebEngineView' in _webengine_cache and 'QWebChannel' in _webengine_cache:
+    QWebEngineView = _webengine_cache['QWebEngineView']
+    QWebChannel = _webengine_cache['QWebChannel']
+    WEBENGINE_AVAILABLE = True
+    _log_webengine_debug("SUCCESS: Using cached WebEngine imports from RuleAssistantPY.py")
+else:
+    _log_webengine_debug("Cache not available, attempting normal import...")
+    # Otherwise, try to import normally
+    try:
+        _log_webengine_debug("Attempting: from PyQt5.QtWebEngineWidgets import QWebEngineView")
+        from PyQt5.QtWebEngineWidgets import QWebEngineView
+        _log_webengine_debug("Success: QWebEngineView imported")
+
+        _log_webengine_debug("Attempting: from PyQt5.QtWebChannel import QWebChannel")
+        from PyQt5.QtWebChannel import QWebChannel
+        _log_webengine_debug("Success: QWebChannel imported")
+
+        WEBENGINE_AVAILABLE = True
+        _log_webengine_debug("SUCCESS: WebEngine imports successful (normal import)")
+    except ImportError as e:
+        _log_webengine_debug(f"ImportError: {type(e).__name__}: {e}")
+        import traceback
+        _log_webengine_debug(f"Traceback:\n{traceback.format_exc()}")
+        QWebEngineView = None
+        QWebChannel = None
+        WEBENGINE_AVAILABLE = False
+        _log_webengine_debug("FAILED: WebEngine import failed with ImportError")
+    except Exception as e:
+        _log_webengine_debug(f"Exception: {type(e).__name__}: {e}")
+        import traceback
+        _log_webengine_debug(f"Traceback:\n{traceback.format_exc()}")
+        QWebEngineView = None
+        QWebChannel = None
+        WEBENGINE_AVAILABLE = False
+        _log_webengine_debug("FAILED: WebEngine import failed with Exception")
+
+_log_webengine_debug(f"Final WEBENGINE_AVAILABLE: {WEBENGINE_AVAILABLE}")
+_log_webengine_debug("=== rule_generator_control.py import completed ===")
+
+# NOW import the rest of PyQt5
+from PyQt5.QtCore import QSettings, QUrl
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (
     QMainWindow,
     QSplitter,
     QListWidget,
@@ -16,9 +141,9 @@ from PyQt6.QtWidgets import (
     QMessageBox,
     QDialog,
     QPushButton,
+    QAction,
+    QTextBrowser,
 )
-from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWebChannel import QWebChannel
 
 from flextrans_rule_generator.controller import strings
 from flextrans_rule_generator.controller.web_bridge import WebBridge
@@ -129,6 +254,7 @@ class RuleGeneratorControl(QMainWindow):
         self.rules_list.currentRowChanged.connect(self._on_rule_selected)
         self.splitter.addWidget(self.rules_list)
 
+        # FORCE WebEngine - always use QWebEngineView, ignore WEBENGINE_AVAILABLE flag
         self.web_view = QWebEngineView()
         self.bridge = WebBridge()
         channel = QWebChannel(self.web_view.page())
@@ -137,7 +263,7 @@ class RuleGeneratorControl(QMainWindow):
         self.bridge.message_received.connect(self._process_web_message)
         self.splitter.addWidget(self.web_view)
 
-        # Source text display (test data)
+        # Source text display (test data) - also forced to WebEngine
         self.source_text_view = QWebEngineView()
         self.splitter.addWidget(self.source_text_view)
 
@@ -218,30 +344,50 @@ class RuleGeneratorControl(QMainWindow):
     # ------------------------------------------------------------------
 
     def fill_rules_list(self):
+        import sys
+        print("[DEBUG] fill_rules_list: starting", file=sys.stderr, flush=True)
         self.rules_list.blockSignals(True)
+        print("[DEBUG] fill_rules_list: signals blocked", file=sys.stderr, flush=True)
         self.rules_list.clear()
+        print("[DEBUG] fill_rules_list: list cleared", file=sys.stderr, flush=True)
         if self.rule_generator:
-            for rule in self.rule_generator.rules:
+            print(f"[DEBUG] fill_rules_list: adding {len(self.rule_generator.rules)} rules", file=sys.stderr, flush=True)
+            for i, rule in enumerate(self.rule_generator.rules):
+                print(f"[DEBUG] fill_rules_list: adding rule {i}: {str(rule)}", file=sys.stderr, flush=True)
                 self.rules_list.addItem(str(rule))
+                print(f"[DEBUG] fill_rules_list: added rule {i}", file=sys.stderr, flush=True)
+        print("[DEBUG] fill_rules_list: unblocking signals", file=sys.stderr, flush=True)
         self.rules_list.blockSignals(False)
+        print("[DEBUG] fill_rules_list: signals unblocked", file=sys.stderr, flush=True)
         if self.rule_generator and self.rule_generator.rules:
+            print("[DEBUG] fill_rules_list: setting current row", file=sys.stderr, flush=True)
             index = min(self.last_selected_rule, len(self.rule_generator.rules) - 1)
             index = max(index, 0)
+            print(f"[DEBUG] fill_rules_list: setting current row to {index}", file=sys.stderr, flush=True)
             self.rules_list.setCurrentRow(index)
+            print("[DEBUG] fill_rules_list: current row set", file=sys.stderr, flush=True)
+        print("[DEBUG] fill_rules_list: finished", file=sys.stderr, flush=True)
 
     # ------------------------------------------------------------------
     # Rule selection
     # ------------------------------------------------------------------
 
     def _on_rule_selected(self, row: int):
+        import sys
+        print(f"[DEBUG] _on_rule_selected called with row={row}", file=sys.stderr, flush=True)
         if row < 0 or not self.rule_generator or row >= len(self.rule_generator.rules):
+            print(f"[DEBUG] _on_rule_selected: invalid row", file=sys.stderr, flush=True)
             self.selected_rule = None
             self.rule_name_edit.clear()
             return
+        print(f"[DEBUG] _on_rule_selected: setting selected_rule", file=sys.stderr, flush=True)
         self.selected_rule = self.rule_generator.rules[row]
         self.last_selected_rule = row
+        print(f"[DEBUG] _on_rule_selected: setting name text", file=sys.stderr, flush=True)
         self.rule_name_edit.setText(self.selected_rule.name)
+        print(f"[DEBUG] _on_rule_selected: calling _show_rule_in_web_page", file=sys.stderr, flush=True)
         self._show_rule_in_web_page()
+        print(f"[DEBUG] _on_rule_selected: finished", file=sys.stderr, flush=True)
 
     def _on_rule_name_changed(self, text: str):
         if self.selected_rule is None:
@@ -257,36 +403,68 @@ class RuleGeneratorControl(QMainWindow):
     # ------------------------------------------------------------------
 
     def _show_rule_in_web_page(self):
+        import sys
+        print(f"[DEBUG] _show_rule_in_web_page called", file=sys.stderr, flush=True)
         if self.selected_rule is None:
+            print(f"[DEBUG] _show_rule_in_web_page: selected_rule is None", file=sys.stderr, flush=True)
             return
+        print(f"[DEBUG] _show_rule_in_web_page: producing web page", file=sys.stderr, flush=True)
         html = self.producer.produce_web_page(self.selected_rule)
-        # Inject QWebChannel bridge before </head>
-        bridge_script = (
-            '<script src="qrc:///qtwebchannel/qwebchannel.js"></script>\n'
-            "<script>\n"
-            "var bridge = null;\n"
-            "new QWebChannel(qt.webChannelTransport, function(channel) {\n"
-            "    bridge = channel.objects.bridge;\n"
-            "});\n"
-            "function toApp(msg) {\n"
-            "    if (bridge) { bridge.receive_message(msg); }\n"
-            "    return false;\n"
-            "}\n"
-            "</script>"
-        )
-        # Remove original toApp function produced by WebPageProducer
-        html = html.replace(
-            "function toApp(msg) {\n"
-            "window.chrome.webview.postMessage(msg);\n"
-            "return false;\n"
-            "}",
-            "",
-        )
-        html = html.replace("</head>", bridge_script + "\n</head>")
-        base_url = QUrl.fromLocalFile(
-            str(Path(__file__).parent.parent / "resources") + "/"
-        )
-        self.web_view.setHtml(html, base_url)
+        print(f"[DEBUG] _show_rule_in_web_page: web page produced, length={len(html)}", file=sys.stderr, flush=True)
+
+        if WEBENGINE_AVAILABLE:
+            print(f"[DEBUG] _show_rule_in_web_page: WebEngine available", file=sys.stderr, flush=True)
+            # Inject QWebChannel bridge before </head>
+            bridge_script = (
+                '<script src="qrc:///qtwebchannel/qwebchannel.js"></script>\n'
+                "<script>\n"
+                "var bridge = null;\n"
+                "new QWebChannel(qt.webChannelTransport, function(channel) {\n"
+                "    bridge = channel.objects.bridge;\n"
+                "});\n"
+                "function toApp(msg) {\n"
+                "    if (bridge) { bridge.receive_message(msg); }\n"
+                "    return false;\n"
+                "}\n"
+                "</script>"
+            )
+            # Remove original toApp function produced by WebPageProducer
+            html = html.replace(
+                "function toApp(msg) {\n"
+                "window.chrome.webview.postMessage(msg);\n"
+                "return false;\n"
+                "}",
+                "",
+            )
+            html = html.replace("</head>", bridge_script + "\n</head>")
+
+        print(f"[DEBUG] _show_rule_in_web_page: calling setHtml", file=sys.stderr, flush=True)
+        print(f"[DEBUG] _show_rule_in_web_page: web_view type={type(self.web_view).__name__}", file=sys.stderr, flush=True)
+
+        try:
+            if WEBENGINE_AVAILABLE:
+                # QWebEngineView supports baseUrl parameter
+                base_url = QUrl.fromLocalFile(
+                    str(Path(__file__).parent.parent / "resources") + "/"
+                )
+                print(f"[DEBUG] _show_rule_in_web_page: calling setHtml with base_url", file=sys.stderr, flush=True)
+                self.web_view.setHtml(html, base_url)
+            else:
+                # QTextBrowser may not handle baseUrl the same way
+                print(f"[DEBUG] _show_rule_in_web_page: calling setHtml without base_url (QTextBrowser)", file=sys.stderr, flush=True)
+                self.web_view.setHtml(html)
+            print(f"[DEBUG] _show_rule_in_web_page: setHtml completed", file=sys.stderr, flush=True)
+        except Exception as e:
+            print(f"[ERROR] setHtml failed: {str(e)}", file=sys.stderr, flush=True)
+            import traceback
+            traceback.print_exc(file=sys.stderr)
+            # Fallback: show plain text version
+            try:
+                plain = html.replace("<", "&lt;").replace(">", "&gt;")
+                self.web_view.setHtml(f"<pre>{plain}</pre>")
+                print(f"[DEBUG] Fallback setHtml succeeded", file=sys.stderr, flush=True)
+            except Exception as e2:
+                print(f"[ERROR] Fallback also failed: {str(e2)}", file=sys.stderr, flush=True)
 
     # ------------------------------------------------------------------
     # Web message processing
@@ -334,7 +512,7 @@ class RuleGeneratorControl(QMainWindow):
                 self._show_menu_at_cursor(self.affix_menu)
 
     def _show_menu_at_cursor(self, menu: QMenu):
-        from PyQt6.QtGui import QCursor
+        from PyQt5.QtGui import QCursor
 
         menu.popup(QCursor.pos())
 
@@ -772,7 +950,7 @@ class RuleGeneratorControl(QMainWindow):
                 if cat.abbreviation == self.category.name:
                     chooser.select_category(i)
                     break
-        if chooser.exec() == QDialog.DialogCode.Accepted and chooser.selected_category:
+        if chooser.exec_() == QDialog.Accepted and chooser.selected_category:
             return chooser.selected_category
         return None
 
@@ -798,7 +976,7 @@ class RuleGeneratorControl(QMainWindow):
                 if feat.name == current_label:
                     chooser.select_feature_value(i)
                     break
-        if chooser.exec() != QDialog.DialogCode.Accepted:
+        if chooser.exec_() != QDialog.Accepted:
             return None
         row = chooser.list_widget.currentRow()
         if row < 0 or row >= len(features):
@@ -813,7 +991,7 @@ class RuleGeneratorControl(QMainWindow):
         value_chooser.fill_feature_values_list()
         if current_label and current_match:
             value_chooser.find_and_select_feature_value_pair(current_label, current_match)
-        if value_chooser.exec() == QDialog.DialogCode.Accepted and value_chooser.selected_feature_value:
+        if value_chooser.exec_() == QDialog.Accepted and value_chooser.selected_feature_value:
             return (selected_feature.name, value_chooser.match)
         return None
 
@@ -971,8 +1149,17 @@ class RuleGeneratorControl(QMainWindow):
 
     def set_test_data_file(self, file_path: str):
         self._test_data_file = file_path
-        url = QUrl.fromLocalFile(file_path)
-        self.source_text_view.setUrl(url)
+        if WEBENGINE_AVAILABLE:
+            url = QUrl.fromLocalFile(file_path)
+            self.source_text_view.setUrl(url)
+        else:
+            # For QTextBrowser, read file content and display as HTML
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                self.source_text_view.setHtml(f"<pre>{content}</pre>")
+            except Exception:
+                self.source_text_view.setHtml("")
 
     # ------------------------------------------------------------------
     # Settings persistence

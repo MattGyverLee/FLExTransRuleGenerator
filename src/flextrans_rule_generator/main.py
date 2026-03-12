@@ -66,7 +66,7 @@ def main():
     flex_provider = XmlBackEndProviderFLExData()
     flex_provider.load_data_from_file(str(flex_data_path))
 
-    from PyQt6.QtWidgets import QApplication
+    from PyQt5.QtWidgets import QApplication
     from flextrans_rule_generator.controller.rule_generator_control import (
         RuleGeneratorControl,
     )
@@ -87,7 +87,7 @@ def main():
 
     window.fill_rules_list()
     window.show()
-    app.exec()
+    app.exec_()
 
     # Output result codes to stdout for the calling script
     output_parts = []
