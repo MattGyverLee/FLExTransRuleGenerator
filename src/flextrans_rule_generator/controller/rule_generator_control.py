@@ -235,46 +235,10 @@ class RuleGeneratorControl(QMainWindow):
         toolbar_layout.addWidget(self.btn_help)
         main_layout.addLayout(toolbar_layout)
 
-        # Rule name row
-        name_layout = QHBoxLayout()
-        name_layout.addWidget(QLabel(strings.RULE_NAME))
-        self.rule_name_edit = QLineEdit()
-        self.rule_name_edit.textEdited.connect(self._on_rule_name_changed)
-        name_layout.addWidget(self.rule_name_edit)
-        main_layout.addLayout(name_layout)
+        # Main 2-pane layout: left pane (rules) | right pane (form + tree)
+        main_splitter = QSplitter(Qt.Orientation.Horizontal)
 
-        # Description row
-        desc_layout = QHBoxLayout()
-        desc_layout.addWidget(QLabel(strings.DESCRIPTION))
-        self.description_edit = QTextEdit()
-        self.description_edit.setMaximumHeight(60)
-        self.description_edit.textChanged.connect(self._on_description_changed)
-        desc_layout.addWidget(self.description_edit)
-        main_layout.addLayout(desc_layout)
-
-        # Create permutations row
-        perm_layout = QHBoxLayout()
-        perm_layout.addWidget(QLabel(strings.CREATE_PERMUTATIONS))
-        self.create_permutations_combo = QComboBox()
-        self.create_permutations_combo.addItem(strings.NO)
-        self.create_permutations_combo.addItem(strings.YES)
-        self.create_permutations_combo.currentTextChanged.connect(self._on_create_permutations_changed)
-        perm_layout.addWidget(self.create_permutations_combo)
-        perm_layout.addStretch()
-        main_layout.addLayout(perm_layout)
-
-        # Source text display
-        source_layout = QVBoxLayout()
-        source_layout.addWidget(QLabel(strings.SOURCE_TEXT))
-        self.source_text_view = QWebEngineView()
-        self.source_text_view.setMaximumHeight(100)
-        source_layout.addWidget(self.source_text_view)
-        main_layout.addLayout(source_layout)
-
-        # Main area: list on left, web view in center
-        self.splitter = QSplitter(Qt.Orientation.Horizontal)
-
-        # Left pane: rules list with checkbox and button
+        # LEFT PANE: Rules list with checkbox and button
         left_pane = QWidget()
         left_layout = QVBoxLayout(left_pane)
         left_layout.setContentsMargins(0, 0, 0, 0)
@@ -294,20 +258,79 @@ class RuleGeneratorControl(QMainWindow):
         bottom_layout.addWidget(self.btn_set_disjoint)
         left_layout.addLayout(bottom_layout)
 
-        self.splitter.addWidget(left_pane)
+        main_splitter.addWidget(left_pane)
 
-        # Center pane: web view for tree diagram
+        # RIGHT PANE: Vertical layout with form fields at top and tree at bottom
+        right_pane = QWidget()
+        right_layout = QVBoxLayout(right_pane)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Top section: form fields on left, source text on right
+        top_splitter = QSplitter(Qt.Orientation.Horizontal)
+
+        # Form fields (Rule name, Description, Create permutations)
+        form_pane = QWidget()
+        form_layout = QVBoxLayout(form_pane)
+        form_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Rule name row
+        name_layout = QHBoxLayout()
+        name_layout.addWidget(QLabel(strings.RULE_NAME))
+        self.rule_name_edit = QLineEdit()
+        self.rule_name_edit.textEdited.connect(self._on_rule_name_changed)
+        name_layout.addWidget(self.rule_name_edit)
+        form_layout.addLayout(name_layout)
+
+        # Description row
+        desc_layout = QHBoxLayout()
+        desc_layout.addWidget(QLabel(strings.DESCRIPTION))
+        self.description_edit = QTextEdit()
+        self.description_edit.setMaximumHeight(60)
+        self.description_edit.textChanged.connect(self._on_description_changed)
+        desc_layout.addWidget(self.description_edit)
+        form_layout.addLayout(desc_layout)
+
+        # Create permutations row
+        perm_layout = QHBoxLayout()
+        perm_layout.addWidget(QLabel(strings.CREATE_PERMUTATIONS))
+        self.create_permutations_combo = QComboBox()
+        self.create_permutations_combo.addItem(strings.NO)
+        self.create_permutations_combo.addItem(strings.YES)
+        self.create_permutations_combo.currentTextChanged.connect(self._on_create_permutations_changed)
+        perm_layout.addWidget(self.create_permutations_combo)
+        perm_layout.addStretch()
+        form_layout.addLayout(perm_layout)
+
+        form_layout.addStretch()
+        top_splitter.addWidget(form_pane)
+
+        # Source text display
+        source_pane = QWidget()
+        source_layout = QVBoxLayout(source_pane)
+        source_layout.setContentsMargins(0, 0, 0, 0)
+        source_layout.addWidget(QLabel(strings.SOURCE_TEXT))
+        self.source_text_view = QWebEngineView()
+        source_layout.addWidget(self.source_text_view)
+        top_splitter.addWidget(source_pane)
+
+        top_splitter.setStretchFactor(0, 1)
+        top_splitter.setStretchFactor(1, 1)
+        right_layout.addWidget(top_splitter)
+
+        # Bottom section: tree diagram
         self.web_view = QWebEngineView()
         self.bridge = WebBridge()
         channel = QWebChannel(self.web_view.page())
         channel.registerObject("bridge", self.bridge)
         self.web_view.page().setWebChannel(channel)
         self.bridge.message_received.connect(self._process_web_message)
-        self.splitter.addWidget(self.web_view)
+        right_layout.addWidget(self.web_view)
 
-        self.splitter.setStretchFactor(0, 1)
-        self.splitter.setStretchFactor(1, 3)
-        main_layout.addWidget(self.splitter)
+        main_splitter.addWidget(right_pane)
+
+        main_splitter.setStretchFactor(0, 1)
+        main_splitter.setStretchFactor(1, 3)
+        main_layout.addWidget(main_splitter)
 
     # ------------------------------------------------------------------
     # Context menu definitions
