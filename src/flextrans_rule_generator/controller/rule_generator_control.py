@@ -260,10 +260,8 @@ class RuleGeneratorControl(QMainWindow):
 
         main_splitter.addWidget(left_pane)
 
-        # RIGHT PANE: Vertical layout with form fields at top and tree at bottom
-        right_pane = QWidget()
-        right_layout = QVBoxLayout(right_pane)
-        right_layout.setContentsMargins(0, 0, 0, 0)
+        # RIGHT PANE: Vertical splitter with form fields at top and tree at bottom
+        right_pane = QSplitter(Qt.Orientation.Vertical)
 
         # Top section: form fields on left, source text on right
         top_splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -315,7 +313,7 @@ class RuleGeneratorControl(QMainWindow):
 
         top_splitter.setStretchFactor(0, 1)
         top_splitter.setStretchFactor(1, 1)
-        right_layout.addWidget(top_splitter)
+        right_pane.addWidget(top_splitter)
 
         # Bottom section: tree diagram
         self.web_view = QWebEngineView()
@@ -324,7 +322,10 @@ class RuleGeneratorControl(QMainWindow):
         channel.registerObject("bridge", self.bridge)
         self.web_view.page().setWebChannel(channel)
         self.bridge.message_received.connect(self._process_web_message)
-        right_layout.addWidget(self.web_view)
+        right_pane.addWidget(self.web_view)
+
+        right_pane.setStretchFactor(0, 1)
+        right_pane.setStretchFactor(1, 1)
 
         main_splitter.addWidget(right_pane)
 
