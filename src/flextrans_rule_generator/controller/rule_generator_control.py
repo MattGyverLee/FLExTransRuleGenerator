@@ -232,29 +232,68 @@ class RuleGeneratorControl(QMainWindow):
         toolbar_layout.addWidget(self.btn_help)
         main_layout.addLayout(toolbar_layout)
 
-        # Top row: Rule name on left, source text on right
-        top_row = QHBoxLayout()
-
-        # Rule name
+        # Rule name row
         name_layout = QHBoxLayout()
         name_layout.addWidget(QLabel(strings.RULE_NAME))
         self.rule_name_edit = QLineEdit()
         self.rule_name_edit.textEdited.connect(self._on_rule_name_changed)
         name_layout.addWidget(self.rule_name_edit)
-        top_row.addLayout(name_layout, stretch=1)
+        main_layout.addLayout(name_layout)
 
-        main_layout.addLayout(top_row)
+        # Description row
+        desc_layout = QHBoxLayout()
+        desc_layout.addWidget(QLabel(strings.DESCRIPTION))
+        self.description_edit = QTextEdit()
+        self.description_edit.setMaximumHeight(60)
+        self.description_edit.textChanged.connect(self._on_description_changed)
+        desc_layout.addWidget(self.description_edit)
+        main_layout.addLayout(desc_layout)
 
-        # Main area: list on left, web view in center, source text on right
+        # Create permutations row
+        perm_layout = QHBoxLayout()
+        perm_layout.addWidget(QLabel(strings.CREATE_PERMUTATIONS))
+        self.create_permutations_combo = QComboBox()
+        self.create_permutations_combo.addItem(strings.NO)
+        self.create_permutations_combo.addItem(strings.YES)
+        self.create_permutations_combo.currentTextChanged.connect(self._on_create_permutations_changed)
+        perm_layout.addWidget(self.create_permutations_combo)
+        perm_layout.addStretch()
+        main_layout.addLayout(perm_layout)
+
+        # Source text display
+        source_layout = QVBoxLayout()
+        source_layout.addWidget(QLabel(strings.SOURCE_TEXT))
+        self.source_text_view = QWebEngineView()
+        self.source_text_view.setMaximumHeight(100)
+        source_layout.addWidget(self.source_text_view)
+        main_layout.addLayout(source_layout)
+
+        # Main area: list on left, web view in center
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
+
+        # Left pane: rules list with checkbox and button
+        left_pane = QWidget()
+        left_layout = QVBoxLayout(left_pane)
+        left_layout.setContentsMargins(0, 0, 0, 0)
 
         self.rules_list = QListWidget()
         self.rules_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.rules_list.customContextMenuRequested.connect(self._show_rule_context_menu)
         self.rules_list.currentRowChanged.connect(self._on_rule_selected)
-        self.splitter.addWidget(self.rules_list)
+        left_layout.addWidget(self.rules_list)
 
-        # FORCE WebEngine - always use QWebEngineView, ignore WEBENGINE_AVAILABLE flag
+        # Checkbox and button at bottom of left pane
+        bottom_layout = QHBoxLayout()
+        self.overwrite_rules_check = QCheckBox(strings.OVERWRITE_RULES)
+        bottom_layout.addWidget(self.overwrite_rules_check)
+        self.btn_set_disjoint = QPushButton(strings.SET_DISJOINT_FEATURES)
+        self.btn_set_disjoint.clicked.connect(self._on_set_disjoint_features)
+        bottom_layout.addWidget(self.btn_set_disjoint)
+        left_layout.addLayout(bottom_layout)
+
+        self.splitter.addWidget(left_pane)
+
+        # Center pane: web view for tree diagram
         self.web_view = QWebEngineView()
         self.bridge = WebBridge()
         channel = QWebChannel(self.web_view.page())
@@ -263,13 +302,8 @@ class RuleGeneratorControl(QMainWindow):
         self.bridge.message_received.connect(self._process_web_message)
         self.splitter.addWidget(self.web_view)
 
-        # Source text display (test data) - also forced to WebEngine
-        self.source_text_view = QWebEngineView()
-        self.splitter.addWidget(self.source_text_view)
-
         self.splitter.setStretchFactor(0, 1)
         self.splitter.setStretchFactor(1, 3)
-        self.splitter.setStretchFactor(2, 2)
         main_layout.addWidget(self.splitter)
 
     # ------------------------------------------------------------------
@@ -397,6 +431,18 @@ class RuleGeneratorControl(QMainWindow):
         if 0 <= row < self.rules_list.count():
             self.rules_list.item(row).setText(str(self.selected_rule))
         self._mark_dirty()
+
+    def _on_description_changed(self):
+        # TODO: Description field not yet mapped to rule model
+        pass
+
+    def _on_create_permutations_changed(self, text: str):
+        # TODO: Create permutations field not yet mapped to rule model
+        pass
+
+    def _on_set_disjoint_features(self):
+        # TODO: Implement set disjoint features
+        pass
 
     # ------------------------------------------------------------------
     # Web page display
