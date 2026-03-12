@@ -22,10 +22,3 @@ CM_MOVE_DOWN = "Move down"
 CM_MOVE_LEFT = "Move left"
 CM_MOVE_RIGHT = "Move right"
 CM_MOVE_UP = "Move up"
-
-# Toolbar buttons
-BTN_TEST_IN_LRT = "Test in LRT"
-BTN_SAVE = "Save"
-BTN_SAVE_AND_WRITE = "Save && Write"
-BTN_SAVE_AND_WRITE_ALL = "Save && Write All"
-BTN_HELP = "Help"

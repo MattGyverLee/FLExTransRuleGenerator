@@ -15,7 +15,6 @@ from PyQt6.QtWidgets import (
     QMenu,
     QMessageBox,
     QDialog,
-    QPushButton,
 )
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebChannel import QWebChannel
@@ -81,32 +80,6 @@ class RuleGeneratorControl(QMainWindow):
         self.setCentralWidget(central)
         main_layout = QVBoxLayout(central)
 
-        # Toolbar row
-        toolbar_layout = QHBoxLayout()
-        toolbar_layout.addStretch()
-
-        self.btn_test_lrt = QPushButton(strings.BTN_TEST_IN_LRT)
-        self.btn_test_lrt.clicked.connect(self._on_test_in_lrt)
-        toolbar_layout.addWidget(self.btn_test_lrt)
-
-        self.btn_save = QPushButton(strings.BTN_SAVE)
-        self.btn_save.clicked.connect(self._on_save_clicked)
-        toolbar_layout.addWidget(self.btn_save)
-
-        self.btn_save_write = QPushButton(strings.BTN_SAVE_AND_WRITE)
-        self.btn_save_write.clicked.connect(self._on_save_and_write)
-        toolbar_layout.addWidget(self.btn_save_write)
-
-        self.btn_save_write_all = QPushButton(strings.BTN_SAVE_AND_WRITE_ALL)
-        self.btn_save_write_all.clicked.connect(self._on_save_and_write_all)
-        toolbar_layout.addWidget(self.btn_save_write_all)
-
-        self.btn_help = QPushButton(strings.BTN_HELP)
-        self.btn_help.clicked.connect(self._on_help)
-        toolbar_layout.addWidget(self.btn_help)
-
-        main_layout.addLayout(toolbar_layout)
-
         # Rule name row
         name_layout = QHBoxLayout()
         name_layout.addWidget(QLabel(strings.RULE_NAME))
@@ -141,57 +114,61 @@ class RuleGeneratorControl(QMainWindow):
     # ------------------------------------------------------------------
 
     def _build_context_menus(self):
-        # --- Rule context menu ---
+        # --- Rule context menu (C# order: Duplicate, Insert Before, Insert After, -, Move Up, Move Down, -, Delete) ---
         self.rule_menu = QMenu(self)
-        self._add_action(self.rule_menu, strings.CM_INSERT_BEFORE, self._rule_insert_before)
-        self._add_action(self.rule_menu, strings.CM_INSERT_AFTER, self._rule_insert_after)
-        self._add_action(self.rule_menu, strings.CM_DUPLICATE, self._rule_duplicate)
-        self._add_action(self.rule_menu, strings.CM_DELETE, self._rule_delete)
+        self.rule_act_duplicate = self._add_action(self.rule_menu, strings.CM_DUPLICATE, self._rule_duplicate)
+        self.rule_act_insert_before = self._add_action(self.rule_menu, strings.CM_INSERT_BEFORE, self._rule_insert_before)
+        self.rule_act_insert_after = self._add_action(self.rule_menu, strings.CM_INSERT_AFTER, self._rule_insert_after)
         self.rule_menu.addSeparator()
-        self._add_action(self.rule_menu, strings.CM_MOVE_UP, self._rule_move_up)
-        self._add_action(self.rule_menu, strings.CM_MOVE_DOWN, self._rule_move_down)
+        self.rule_act_move_up = self._add_action(self.rule_menu, strings.CM_MOVE_UP, self._rule_move_up)
+        self.rule_act_move_down = self._add_action(self.rule_menu, strings.CM_MOVE_DOWN, self._rule_move_down)
+        self.rule_menu.addSeparator()
+        self.rule_act_delete = self._add_action(self.rule_menu, strings.CM_DELETE, self._rule_delete)
 
-        # --- Word context menu ---
+        # --- Word context menu (C# order: Duplicate, Insert Before, Insert After, -, Move Left, Move Right, -, Delete, -, Insert Prefix, Insert Suffix, Insert Category, Insert Feature, Mark As Head, Remove Head Marking) ---
         self.word_menu = QMenu(self)
-        self._add_action(self.word_menu, strings.CM_INSERT_BEFORE, self._word_insert_before)
-        self._add_action(self.word_menu, strings.CM_INSERT_AFTER, self._word_insert_after)
-        self._add_action(self.word_menu, strings.CM_DUPLICATE, self._word_duplicate)
-        self._add_action(self.word_menu, strings.CM_DELETE, self._word_delete)
+        self.word_act_duplicate = self._add_action(self.word_menu, strings.CM_DUPLICATE, self._word_duplicate)
+        self.word_act_insert_before = self._add_action(self.word_menu, strings.CM_INSERT_BEFORE, self._word_insert_before)
+        self.word_act_insert_after = self._add_action(self.word_menu, strings.CM_INSERT_AFTER, self._word_insert_after)
         self.word_menu.addSeparator()
-        self._add_action(self.word_menu, strings.CM_MOVE_LEFT, self._word_move_left)
-        self._add_action(self.word_menu, strings.CM_MOVE_RIGHT, self._word_move_right)
+        self.word_act_move_left = self._add_action(self.word_menu, strings.CM_MOVE_LEFT, self._word_move_left)
+        self.word_act_move_right = self._add_action(self.word_menu, strings.CM_MOVE_RIGHT, self._word_move_right)
         self.word_menu.addSeparator()
-        self._add_action(self.word_menu, strings.CM_MARK_AS_HEAD, self._word_mark_as_head)
-        self._add_action(self.word_menu, strings.CM_REMOVE_HEAD_MARKING, self._word_remove_head_marking)
+        self.word_act_delete = self._add_action(self.word_menu, strings.CM_DELETE, self._word_delete)
         self.word_menu.addSeparator()
-        self._add_action(self.word_menu, strings.CM_INSERT_CATEGORY, self._word_insert_category)
-        self._add_action(self.word_menu, strings.CM_INSERT_FEATURE, self._word_insert_feature)
-        self._add_action(self.word_menu, strings.CM_INSERT_PREFIX, self._word_insert_prefix)
-        self._add_action(self.word_menu, strings.CM_INSERT_SUFFIX, self._word_insert_suffix)
+        self.word_act_insert_prefix = self._add_action(self.word_menu, strings.CM_INSERT_PREFIX, self._word_insert_prefix)
+        self.word_act_insert_suffix = self._add_action(self.word_menu, strings.CM_INSERT_SUFFIX, self._word_insert_suffix)
+        self.word_act_insert_category = self._add_action(self.word_menu, strings.CM_INSERT_CATEGORY, self._word_insert_category)
+        self.word_act_insert_feature = self._add_action(self.word_menu, strings.CM_INSERT_FEATURE, self._word_insert_feature)
+        self.word_act_mark_as_head = self._add_action(self.word_menu, strings.CM_MARK_AS_HEAD, self._word_mark_as_head)
+        self.word_act_remove_head_marking = self._add_action(self.word_menu, strings.CM_REMOVE_HEAD_MARKING, self._word_remove_head_marking)
 
-        # --- Category context menu ---
+        # --- Category context menu (C# order: Edit, -, Delete) ---
         self.category_menu = QMenu(self)
         self._add_action(self.category_menu, strings.CM_EDIT, self._category_edit)
+        self.category_menu.addSeparator()
         self._add_action(self.category_menu, strings.CM_DELETE, self._category_delete)
 
-        # --- Feature context menu ---
+        # --- Feature context menu (C# order: Edit, -, Delete) ---
         self.feature_menu = QMenu(self)
         self._add_action(self.feature_menu, strings.CM_EDIT, self._feature_edit)
+        self.feature_menu.addSeparator()
         self._add_action(self.feature_menu, strings.CM_DELETE, self._feature_delete)
 
-        # --- Affix context menu ---
+        # --- Affix context menu (C# order: Duplicate, Insert Prefix Before, Insert Prefix After, Insert Suffix Before, Insert Suffix After, -, Move Left, Move Right, -, Delete, -, Insert Feature) ---
         self.affix_menu = QMenu(self)
-        self._add_action(self.affix_menu, strings.CM_INSERT_FEATURE, self._affix_insert_feature)
-        self._add_action(self.affix_menu, strings.CM_DELETE, self._affix_delete)
         self._add_action(self.affix_menu, strings.CM_DUPLICATE, self._affix_duplicate)
-        self.affix_menu.addSeparator()
         self._add_action(self.affix_menu, strings.CM_INSERT_PREFIX_BEFORE, self._affix_insert_prefix_before)
         self._add_action(self.affix_menu, strings.CM_INSERT_PREFIX_AFTER, self._affix_insert_prefix_after)
         self._add_action(self.affix_menu, strings.CM_INSERT_SUFFIX_BEFORE, self._affix_insert_suffix_before)
         self._add_action(self.affix_menu, strings.CM_INSERT_SUFFIX_AFTER, self._affix_insert_suffix_after)
         self.affix_menu.addSeparator()
-        self._add_action(self.affix_menu, strings.CM_MOVE_LEFT, self._affix_move_left)
-        self._add_action(self.affix_menu, strings.CM_MOVE_RIGHT, self._affix_move_right)
+        self.affix_act_move_left = self._add_action(self.affix_menu, strings.CM_MOVE_LEFT, self._affix_move_left)
+        self.affix_act_move_right = self._add_action(self.affix_menu, strings.CM_MOVE_RIGHT, self._affix_move_right)
+        self.affix_menu.addSeparator()
+        self._add_action(self.affix_menu, strings.CM_DELETE, self._affix_delete)
+        self.affix_menu.addSeparator()
+        self._add_action(self.affix_menu, strings.CM_INSERT_FEATURE, self._affix_insert_feature)
 
     @staticmethod
     def _add_action(menu: QMenu, text: str, slot) -> QAction:
@@ -303,6 +280,7 @@ class RuleGeneratorControl(QMainWindow):
         elif msg_type == "w":
             if isinstance(constituent, Word):
                 self.word = constituent
+                self._adjust_word_context_menu()
                 self._show_menu_at_cursor(self.word_menu)
         elif msg_type == "c":
             if isinstance(constituent, Category):
@@ -315,6 +293,7 @@ class RuleGeneratorControl(QMainWindow):
         elif msg_type == "a":
             if isinstance(constituent, Affix):
                 self.affix = constituent
+                self._adjust_affix_context_menu()
                 self._show_menu_at_cursor(self.affix_menu)
 
     def _show_menu_at_cursor(self, menu: QMenu):
@@ -329,6 +308,8 @@ class RuleGeneratorControl(QMainWindow):
     def _show_rule_context_menu(self, pos):
         if not self.rule_generator:
             return
+        index = self.rules_list.currentRow()
+        self._adjust_rule_context_menu(index)
         self.rule_menu.popup(self.rules_list.mapToGlobal(pos))
 
     def _current_rule_index(self) -> int:
@@ -341,8 +322,6 @@ class RuleGeneratorControl(QMainWindow):
         if index < 0:
             index = 0
         new_rule = FLExTransRule()
-        new_rule.source.phrase.words.append(Word())
-        new_rule.target.phrase.words.append(Word())
         self.rule_generator.rules.insert(index, new_rule)
         self._mark_dirty()
         self.fill_rules_list()
@@ -355,8 +334,6 @@ class RuleGeneratorControl(QMainWindow):
         if index <= 0:
             index = len(self.rule_generator.rules)
         new_rule = FLExTransRule()
-        new_rule.source.phrase.words.append(Word())
-        new_rule.target.phrase.words.append(Word())
         self.rule_generator.rules.insert(index, new_rule)
         self._mark_dirty()
         self.fill_rules_list()
@@ -451,15 +428,7 @@ class RuleGeneratorControl(QMainWindow):
         index = self._word_index_in_phrase(phrase)
         if index < 0:
             return
-        # insert_new_word_at inserts *before* the given index, so use index+1
-        # but the model's insert_new_word_at checks index < len(words), so
-        # we need to handle the boundary: if at end, append directly.
-        new_word = Word()
-        new_word.id = str(len(phrase.words) + 1)
-        if index + 1 >= len(phrase.words):
-            phrase.words.append(new_word)
-        else:
-            phrase.words.insert(index + 1, new_word)
+        phrase.insert_new_word_at(index + 1)
         self._mark_dirty()
         self._show_rule_in_web_page()
 
@@ -471,10 +440,8 @@ class RuleGeneratorControl(QMainWindow):
         if index < 0:
             return
         dup = self.word.duplicate()
-        if index + 1 >= len(phrase.words):
-            phrase.words.append(dup)
-        else:
-            phrase.words.insert(index + 1, dup)
+        dup.id = str(len(phrase.words) + 1)
+        phrase.insert_word_at(dup, index + 1)
         self._mark_dirty()
         self._show_rule_in_web_page()
 
@@ -556,18 +523,14 @@ class RuleGeneratorControl(QMainWindow):
     def _word_insert_prefix(self):
         if self.word is None:
             return
-        new_affix = Affix()
-        new_affix.type = AffixType.PREFIX
-        self.word.affixes.append(new_affix)
+        self.word.insert_new_affix_at(AffixType.PREFIX, 0)
         self._mark_dirty()
         self._show_rule_in_web_page()
 
     def _word_insert_suffix(self):
         if self.word is None:
             return
-        new_affix = Affix()
-        new_affix.type = AffixType.SUFFIX
-        self.word.affixes.append(new_affix)
+        self.word.insert_new_affix_at(AffixType.SUFFIX, 0)
         self._mark_dirty()
         self._show_rule_in_web_page()
 
@@ -691,10 +654,7 @@ class RuleGeneratorControl(QMainWindow):
         if index < 0:
             return
         dup = self.affix.duplicate()
-        if index + 1 >= len(word.affixes):
-            word.affixes.append(dup)
-        else:
-            word.affixes.insert(index + 1, dup)
+        word.insert_affix_at(dup, index)
         self._mark_dirty()
         self._show_rule_in_web_page()
 
@@ -716,12 +676,7 @@ class RuleGeneratorControl(QMainWindow):
         index = self._affix_index_in_word(word)
         if index < 0:
             return
-        new_affix = Affix()
-        new_affix.type = AffixType.PREFIX
-        if index + 1 >= len(word.affixes):
-            word.affixes.append(new_affix)
-        else:
-            word.affixes.insert(index + 1, new_affix)
+        word.insert_new_affix_at(AffixType.PREFIX, index + 1)
         self._mark_dirty()
         self._show_rule_in_web_page()
 
@@ -743,12 +698,7 @@ class RuleGeneratorControl(QMainWindow):
         index = self._affix_index_in_word(word)
         if index < 0:
             return
-        new_affix = Affix()
-        new_affix.type = AffixType.SUFFIX
-        if index + 1 >= len(word.affixes):
-            word.affixes.append(new_affix)
-        else:
-            word.affixes.insert(index + 1, new_affix)
+        word.insert_new_affix_at(AffixType.SUFFIX, index + 1)
         self._mark_dirty()
         self._show_rule_in_web_page()
 
@@ -873,42 +823,77 @@ class RuleGeneratorControl(QMainWindow):
         return self.flex_data.target_data.features
 
     # ------------------------------------------------------------------
+    # Context menu enable/disable adjustment
+    # ------------------------------------------------------------------
+
+    def _adjust_rule_context_menu(self, index: int):
+        """Enable/disable rule menu items based on current position."""
+        if not self.rule_generator:
+            return
+        count = len(self.rule_generator.rules)
+        index_last = count - 1
+        self.rule_act_move_up.setEnabled(index > 0)
+        self.rule_act_move_down.setEnabled(index < index_last)
+        self.rule_act_delete.setEnabled(not (index == 0 and index_last == 0))
+
+    def _adjust_word_context_menu(self):
+        """Enable/disable word menu items based on current word state."""
+        if self.word is None:
+            return
+        phrase = self._get_parent_phrase()
+        if phrase is None:
+            return
+        index = self._word_index_in_phrase(phrase)
+        if index < 0:
+            return
+        index_last = len(phrase.words) - 1
+        self.word_act_move_left.setEnabled(index > 0)
+        self.word_act_move_right.setEnabled(index < index_last)
+        # Only allow insert prefix/suffix if no affixes yet
+        has_affixes = len(self.word.affixes) > 0
+        self.word_act_insert_prefix.setEnabled(not has_affixes)
+        self.word_act_insert_suffix.setEnabled(not has_affixes)
+        # Only allow insert category if no category yet
+        self.word_act_insert_category.setEnabled(not self.word.category)
+        # Only allow insert feature if no features yet
+        self.word_act_insert_feature.setEnabled(len(self.word.features) == 0)
+        # Head marking toggles
+        self.word_act_mark_as_head.setEnabled(self.word.head == HeadValue.NO)
+        self.word_act_remove_head_marking.setEnabled(self.word.head == HeadValue.YES)
+
+    def _adjust_affix_context_menu(self):
+        """Enable/disable affix menu items based on current affix position."""
+        if self.affix is None:
+            return
+        word = self._get_parent_word_for_affix()
+        if word is None:
+            return
+        index = self._affix_index_in_word(word)
+        if index < 0:
+            return
+        index_last = len(word.affixes) - 1
+        self.affix_act_move_left.setEnabled(index > 0)
+        self.affix_act_move_right.setEnabled(index < index_last)
+
+    # ------------------------------------------------------------------
     # Dirty tracking / save
     # ------------------------------------------------------------------
 
     def _mark_dirty(self):
         self._is_dirty = True
+        self._show_change_status_on_form()
+
+    def _show_change_status_on_form(self):
+        title = strings.FORM_TITLE
+        if self._is_dirty:
+            title += "*"
+        self.setWindowTitle(title)
 
     def _save(self):
         if self.provider and self.rule_file_path:
             self.provider.save_data_to_file(self.rule_file_path)
             self._is_dirty = False
-
-    # ------------------------------------------------------------------
-    # Toolbar button handlers
-    # ------------------------------------------------------------------
-
-    def _on_test_in_lrt(self):
-        QMessageBox.information(self, strings.FORM_TITLE, "Test in LRT is not yet implemented.")
-
-    def _on_save_clicked(self):
-        self._save()
-
-    def _on_save_and_write(self):
-        self._save()
-        QMessageBox.information(self, strings.FORM_TITLE, "Save & Write is not yet implemented.")
-
-    def _on_save_and_write_all(self):
-        self._save()
-        QMessageBox.information(self, strings.FORM_TITLE, "Save & Write All is not yet implemented.")
-
-    def _on_help(self):
-        QMessageBox.information(
-            self,
-            strings.BTN_HELP,
-            "FLExTrans Rule Generator\n\n"
-            "Right-click on rules or tree elements to edit them.",
-        )
+            self._show_change_status_on_form()
 
     # ------------------------------------------------------------------
     # Settings persistence
