@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import (
     QMenu,
     QMessageBox,
     QDialog,
+    QPushButton,
 )
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebChannel import QWebChannel
@@ -66,6 +67,12 @@ class RuleGeneratorControl(QMainWindow):
         self.last_selected_rule: int = 0
         self._is_dirty: bool = False
 
+        # --- Integration with calling script ---
+        self.from_lrt: bool = False
+        self.exit_code: str = ""  # "1 <rule_number>" or "2"
+        self.request_lrt: bool = False
+        self._test_data_file: str = ""
+
         # --- Build UI ---
         self._build_ui()
         self._build_context_menus()
@@ -80,15 +87,40 @@ class RuleGeneratorControl(QMainWindow):
         self.setCentralWidget(central)
         main_layout = QVBoxLayout(central)
 
-        # Rule name row
+        # Toolbar row
+        toolbar_layout = QHBoxLayout()
+        toolbar_layout.addStretch()
+        self.btn_test_lrt = QPushButton(strings.BTN_TEST_IN_LRT)
+        self.btn_test_lrt.clicked.connect(self._on_test_in_lrt)
+        toolbar_layout.addWidget(self.btn_test_lrt)
+        self.btn_save = QPushButton(strings.BTN_SAVE)
+        self.btn_save.clicked.connect(self._on_save_clicked)
+        toolbar_layout.addWidget(self.btn_save)
+        self.btn_save_write = QPushButton(strings.BTN_SAVE_AND_WRITE)
+        self.btn_save_write.clicked.connect(self._on_save_and_write)
+        toolbar_layout.addWidget(self.btn_save_write)
+        self.btn_save_write_all = QPushButton(strings.BTN_SAVE_AND_WRITE_ALL)
+        self.btn_save_write_all.clicked.connect(self._on_save_and_write_all)
+        toolbar_layout.addWidget(self.btn_save_write_all)
+        self.btn_help = QPushButton(strings.BTN_HELP)
+        self.btn_help.clicked.connect(self._on_help)
+        toolbar_layout.addWidget(self.btn_help)
+        main_layout.addLayout(toolbar_layout)
+
+        # Top row: Rule name on left, source text on right
+        top_row = QHBoxLayout()
+
+        # Rule name
         name_layout = QHBoxLayout()
         name_layout.addWidget(QLabel(strings.RULE_NAME))
         self.rule_name_edit = QLineEdit()
         self.rule_name_edit.textEdited.connect(self._on_rule_name_changed)
         name_layout.addWidget(self.rule_name_edit)
-        main_layout.addLayout(name_layout)
+        top_row.addLayout(name_layout, stretch=1)
 
-        # Splitter: list on left, web view on right
+        main_layout.addLayout(top_row)
+
+        # Main area: list on left, web view in center, source text on right
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
 
         self.rules_list = QListWidget()
@@ -105,8 +137,13 @@ class RuleGeneratorControl(QMainWindow):
         self.bridge.message_received.connect(self._process_web_message)
         self.splitter.addWidget(self.web_view)
 
+        # Source text display (test data)
+        self.source_text_view = QWebEngineView()
+        self.splitter.addWidget(self.source_text_view)
+
         self.splitter.setStretchFactor(0, 1)
         self.splitter.setStretchFactor(1, 3)
+        self.splitter.setStretchFactor(2, 2)
         main_layout.addWidget(self.splitter)
 
     # ------------------------------------------------------------------
@@ -894,6 +931,48 @@ class RuleGeneratorControl(QMainWindow):
             self.provider.save_data_to_file(self.rule_file_path)
             self._is_dirty = False
             self._show_change_status_on_form()
+
+    # ------------------------------------------------------------------
+    # Toolbar button handlers
+    # ------------------------------------------------------------------
+
+    def _on_test_in_lrt(self):
+        self.request_lrt = True
+        self._save()
+        self.close()
+
+    def _on_save_clicked(self):
+        self._save()
+
+    def _on_save_and_write(self):
+        self._save()
+        rule_index = self._current_rule_index()
+        if rule_index >= 0:
+            self.exit_code = f"1 {rule_index}"
+        self.close()
+
+    def _on_save_and_write_all(self):
+        self._save()
+        self.exit_code = "2"
+        self.close()
+
+    def _on_help(self):
+        QMessageBox.information(
+            self,
+            strings.BTN_HELP,
+            "FLExTrans Rule Generator\n\n"
+            "Right-click on rules or tree elements to edit them.\n\n"
+            "Use the toolbar buttons to save and generate transfer rules.",
+        )
+
+    # ------------------------------------------------------------------
+    # Test data (source text) display
+    # ------------------------------------------------------------------
+
+    def set_test_data_file(self, file_path: str):
+        self._test_data_file = file_path
+        url = QUrl.fromLocalFile(file_path)
+        self.source_text_view.setUrl(url)
 
     # ------------------------------------------------------------------
     # Settings persistence

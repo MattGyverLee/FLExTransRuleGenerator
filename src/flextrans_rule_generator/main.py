@@ -18,8 +18,25 @@ def main():
         help="XML file with source/target categories and features",
     )
     parser.add_argument(
-        "max_vars",
+        "test_data_file",
         nargs="?",
+        default="",
+        help="HTML file with test data to display",
+    )
+    parser.add_argument(
+        "from_lrt",
+        nargs="?",
+        default="n",
+        help="'y' if launched from Live Rule Tester, 'n' otherwise",
+    )
+    parser.add_argument(
+        "lang_code",
+        nargs="?",
+        default="",
+        help="Interface language code",
+    )
+    parser.add_argument(
+        "--max-vars",
         type=int,
         default=4,
         help="Max number of variables to show in values (default: 4)",
@@ -61,9 +78,27 @@ def main():
     window.provider = provider
     window.rule_file_path = str(rule_path)
     window.flex_data = flex_provider.flex_data
+    window.from_lrt = args.from_lrt.lower() == "y"
+
+    # Load test data HTML if provided
+    test_data_path = Path(args.test_data_file) if args.test_data_file else None
+    if test_data_path and test_data_path.exists():
+        window.set_test_data_file(str(test_data_path))
+
     window.fill_rules_list()
     window.show()
-    return app.exec()
+    app.exec()
+
+    # Output result codes to stdout for the calling script
+    output_parts = []
+    if window.exit_code:
+        output_parts.append(window.exit_code)
+    if window.request_lrt:
+        output_parts.append("LRT")
+    if output_parts:
+        print(" ".join(output_parts))
+
+    return 0
 
 
 if __name__ == "__main__":
