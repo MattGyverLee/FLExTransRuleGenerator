@@ -24,7 +24,7 @@ class WebPageProducer:
         parts.append(f"<head><title>{rule.name}</title>\n")
         parts.append('<meta charset="utf-8"/>\n')
         parts.append(
-            '<link rel="stylesheet" href="node_modules/treeflex/dist/css/treeflex.css"/>\n'
+            '<link rel="stylesheet" href="treeflex.css"/>\n'
         )
         parts.append('<link rel="stylesheet" href="rulegen.css"/>\n')
         parts.append("<script>\n")

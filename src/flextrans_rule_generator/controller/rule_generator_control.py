@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import (
     QMenu,
     QMessageBox,
     QDialog,
+    QPushButton,
 )
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebChannel import QWebChannel
@@ -79,6 +80,32 @@ class RuleGeneratorControl(QMainWindow):
         central = QWidget()
         self.setCentralWidget(central)
         main_layout = QVBoxLayout(central)
+
+        # Toolbar row
+        toolbar_layout = QHBoxLayout()
+        toolbar_layout.addStretch()
+
+        self.btn_test_lrt = QPushButton(strings.BTN_TEST_IN_LRT)
+        self.btn_test_lrt.clicked.connect(self._on_test_in_lrt)
+        toolbar_layout.addWidget(self.btn_test_lrt)
+
+        self.btn_save = QPushButton(strings.BTN_SAVE)
+        self.btn_save.clicked.connect(self._on_save_clicked)
+        toolbar_layout.addWidget(self.btn_save)
+
+        self.btn_save_write = QPushButton(strings.BTN_SAVE_AND_WRITE)
+        self.btn_save_write.clicked.connect(self._on_save_and_write)
+        toolbar_layout.addWidget(self.btn_save_write)
+
+        self.btn_save_write_all = QPushButton(strings.BTN_SAVE_AND_WRITE_ALL)
+        self.btn_save_write_all.clicked.connect(self._on_save_and_write_all)
+        toolbar_layout.addWidget(self.btn_save_write_all)
+
+        self.btn_help = QPushButton(strings.BTN_HELP)
+        self.btn_help.clicked.connect(self._on_help)
+        toolbar_layout.addWidget(self.btn_help)
+
+        main_layout.addLayout(toolbar_layout)
 
         # Rule name row
         name_layout = QHBoxLayout()
@@ -856,6 +883,32 @@ class RuleGeneratorControl(QMainWindow):
         if self.provider and self.rule_file_path:
             self.provider.save_data_to_file(self.rule_file_path)
             self._is_dirty = False
+
+    # ------------------------------------------------------------------
+    # Toolbar button handlers
+    # ------------------------------------------------------------------
+
+    def _on_test_in_lrt(self):
+        QMessageBox.information(self, strings.FORM_TITLE, "Test in LRT is not yet implemented.")
+
+    def _on_save_clicked(self):
+        self._save()
+
+    def _on_save_and_write(self):
+        self._save()
+        QMessageBox.information(self, strings.FORM_TITLE, "Save & Write is not yet implemented.")
+
+    def _on_save_and_write_all(self):
+        self._save()
+        QMessageBox.information(self, strings.FORM_TITLE, "Save & Write All is not yet implemented.")
+
+    def _on_help(self):
+        QMessageBox.information(
+            self,
+            strings.BTN_HELP,
+            "FLExTrans Rule Generator\n\n"
+            "Right-click on rules or tree elements to edit them.",
+        )
 
     # ------------------------------------------------------------------
     # Settings persistence
