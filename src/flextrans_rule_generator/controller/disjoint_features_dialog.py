@@ -3,13 +3,13 @@
 # (http://www.gnu.org/licenses/lgpl-2.1.html)
 
 from typing import Optional
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QComboBox, QPushButton, QTableWidget,
     QMessageBox, QSplitter, QListWidget, QListWidgetItem,
     QScrollArea, QSpinBox, QWidget
 )
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 
 from flextrans_rule_generator.model.disjoint_feature_set import DisjointFeatureSet
 from flextrans_rule_generator.model.disjoint_feature_value_pairing import DisjointFeatureValuePairing

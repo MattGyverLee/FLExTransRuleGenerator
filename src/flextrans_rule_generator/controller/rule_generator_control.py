@@ -17,7 +17,7 @@ except Exception as e:
 
 # NOTE: Qt.AA_ShareOpenGLContexts is already set in RuleAssistantPY.py
 # before QApplication is created, so we don't set it here
-from PyQt5.QtCore import Qt, QCoreApplication
+from PyQt6.QtCore import Qt, QCoreApplication
 
 # CRITICAL: Try to import WebEngine
 QWebEngineView = None
@@ -27,8 +27,8 @@ WEBENGINE_AVAILABLE = False
 # Direct import attempt - report any real errors
 _WEBENGINE_ERROR = None
 try:
-    from PyQt5.QtWebEngineWidgets import QWebEngineView as _TEST_QWE
-    from PyQt5.QtWebChannel import QWebChannel as _TEST_QWC
+    from PyQt6.QtWebEngineWidgets import QWebEngineView as _TEST_QWE
+    from PyQt6.QtWebChannel import QWebChannel as _TEST_QWC
     _WEBENGINE_WORKS = True
 except ImportError as _imp_err:
     _WEBENGINE_WORKS = False
@@ -95,12 +95,12 @@ else:
     _log_webengine_debug("Cache not available, attempting normal import...")
     # Otherwise, try to import normally
     try:
-        _log_webengine_debug("Attempting: from PyQt5.QtWebEngineWidgets import QWebEngineView")
-        from PyQt5.QtWebEngineWidgets import QWebEngineView
+        _log_webengine_debug("Attempting: from PyQt6.QtWebEngineWidgets import QWebEngineView")
+        from PyQt6.QtWebEngineWidgets import QWebEngineView
         _log_webengine_debug("Success: QWebEngineView imported")
 
-        _log_webengine_debug("Attempting: from PyQt5.QtWebChannel import QWebChannel")
-        from PyQt5.QtWebChannel import QWebChannel
+        _log_webengine_debug("Attempting: from PyQt6.QtWebChannel import QWebChannel")
+        from PyQt6.QtWebChannel import QWebChannel
         _log_webengine_debug("Success: QWebChannel imported")
 
         WEBENGINE_AVAILABLE = True
@@ -125,10 +125,10 @@ else:
 _log_webengine_debug(f"Final WEBENGINE_AVAILABLE: {WEBENGINE_AVAILABLE}")
 _log_webengine_debug("=== rule_generator_control.py import completed ===")
 
-# NOW import the rest of PyQt5
-from PyQt5.QtCore import QSettings, QUrl
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (
+# NOW import the rest of PyQt6
+from PyQt6.QtCore import QSettings, QUrl
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import (
     QMainWindow,
     QSplitter,
     QListWidget,
@@ -509,7 +509,7 @@ class RuleGeneratorControl(QMainWindow):
             self.rule_generator.disjoint_feature_sets,
             self.flex_data
         )
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.Accepted:
             self.rule_generator.disjoint_feature_sets = dialog.get_disjoint_sets()
             self._mark_dirty()
 
@@ -627,7 +627,7 @@ class RuleGeneratorControl(QMainWindow):
                 self._show_menu_at_cursor(self.affix_menu)
 
     def _show_menu_at_cursor(self, menu: QMenu):
-        from PyQt5.QtGui import QCursor
+        from PyQt6.QtGui import QCursor
 
         menu.popup(QCursor.pos())
 
@@ -1065,7 +1065,7 @@ class RuleGeneratorControl(QMainWindow):
                 if cat.abbreviation == self.category.name:
                     chooser.select_category(i)
                     break
-        if chooser.exec_() == QDialog.Accepted and chooser.selected_category:
+        if chooser.exec() == QDialog.Accepted and chooser.selected_category:
             return chooser.selected_category
         return None
 
@@ -1091,7 +1091,7 @@ class RuleGeneratorControl(QMainWindow):
                 if feat.name == current_label:
                     chooser.select_feature_value(i)
                     break
-        if chooser.exec_() != QDialog.Accepted:
+        if chooser.exec() != QDialog.Accepted:
             return None
         row = chooser.list_widget.currentRow()
         if row < 0 or row >= len(features):
@@ -1106,7 +1106,7 @@ class RuleGeneratorControl(QMainWindow):
         value_chooser.fill_feature_values_list()
         if current_label and current_match:
             value_chooser.find_and_select_feature_value_pair(current_label, current_match)
-        if value_chooser.exec_() == QDialog.Accepted and value_chooser.selected_feature_value:
+        if value_chooser.exec() == QDialog.Accepted and value_chooser.selected_feature_value:
             return (selected_feature.name, value_chooser.match)
         return None
 

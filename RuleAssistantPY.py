@@ -5,7 +5,7 @@
 #   SIL International
 #   9/11/23
 #
-#   Version 4.0.0 - Updated to use the Python/PyQt5 Rule Generator in-process
+#   Version 4.0.0 - Updated to use the Python/PyQt6 Rule Generator in-process
 #   instead of launching the C# exe as a subprocess.
 #
 #   Version 3.15.1 - 3/6/26 - Ron Lockwood
@@ -73,8 +73,8 @@ from dataclasses import dataclass
 from pathlib import Path
 import traceback
 
-from PyQt5.QtCore import QCoreApplication, Qt, QUrl
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtCore import QCoreApplication, Qt, QUrl
+from PyQt6.QtWidgets import QApplication
 
 # *** CRITICAL: Set Qt.AA_ShareOpenGLContexts BEFORE any WebEngine import ***
 # This MUST happen before ANY attempt to import QtWebEngineWidgets
@@ -91,11 +91,11 @@ with open(_diag_log, "w") as f:
     f.write(f"sys.path:\n")
     for p in sys.path:
         f.write(f"  {p}\n")
-    # Check which PyQt5 is being used
-    import PyQt5
-    f.write(f"PyQt5 location: {PyQt5.__file__}\n")
+    # Check which PyQt6 is being used
+    import PyQt6
+    f.write(f"PyQt6 location: {PyQt6.__file__}\n")
 try:
-        from PyQt5.QtWebEngineWidgets import QWebEngineView
+        from PyQt6.QtWebEngineWidgets import QWebEngineView
         f.write(f"QtWebEngineWidgets: AVAILABLE\n")
     except:
         f.write(f"QtWebEngineWidgets: NOT AVAILABLE\n")
@@ -116,12 +116,12 @@ _cache_log("=== RuleAssistantPY.py: Creating WebEngine cache ===")
 _cache_log(f"sys.path[0]: {sys.path[0] if sys.path else 'EMPTY'}")
 
     try:
-    _cache_log("Attempting: from PyQt5.QtWebEngineWidgets import QWebEngineView")
-    from PyQt5.QtWebEngineWidgets import QWebEngineView as _QWE
+    _cache_log("Attempting: from PyQt6.QtWebEngineWidgets import QWebEngineView")
+    from PyQt6.QtWebEngineWidgets import QWebEngineView as _QWE
     _cache_log("Success: QWebEngineView imported")
 
-    _cache_log("Attempting: from PyQt5.QtWebChannel import QWebChannel")
-    from PyQt5.QtWebChannel import QWebChannel as _QWC
+    _cache_log("Attempting: from PyQt6.QtWebChannel import QWebChannel")
+    from PyQt6.QtWebChannel import QWebChannel as _QWC
     _cache_log("Success: QWebChannel imported")
 
     _webengine_imports['QWebEngineView'] = _QWE
@@ -589,7 +589,7 @@ def GetTestDataFile(report, DB, configMap):
 
 def StartRuleAssistant(report, ruleAssistantFile, ruleAssistGUIinputfile,
                        testDataFile, fromLRT=False):
-    """Launch the Rule Generator GUI in-process using the Python/PyQt5 version.
+    """Launch the Rule Generator GUI in-process using the Python/PyQt6 version.
 
     Returns (saved, rule_index_or_None, request_lrt).
     """
@@ -664,7 +664,7 @@ def StartRuleAssistant(report, ruleAssistantFile, ruleAssistGUIinputfile,
 
         # Run a local event loop so this function blocks until the window closes.
         print(f"[DEBUG] Setting up event loop...", file=_debug_log, flush=True)
-        from PyQt5.QtCore import QEventLoop
+        from PyQt6.QtCore import QEventLoop
 
         loop = QEventLoop()
         # Connect close to capture results, then quit the local loop
@@ -681,7 +681,7 @@ def StartRuleAssistant(report, ruleAssistantFile, ruleAssistGUIinputfile,
         print(f"[DEBUG] Showing window...", file=_debug_log, flush=True)
         window.show()
         print(f"[DEBUG] Window shown, entering event loop...", file=_debug_log, flush=True)
-        loop.exec_()
+        loop.exec()
         print(f"[DEBUG] Event loop exited", file=_debug_log, flush=True)
 
         # Read captured results
@@ -768,7 +768,7 @@ def MainFunction(DB, report, modify=True, fromLRT=False):
 
     testData = GetTestDataFile(report, DB, configMap)
 
-    # Start the Rule Assistant GUI (now runs in-process via PyQt5)
+    # Start the Rule Assistant GUI (now runs in-process via PyQt6)
     print(f"[DEBUG] About to call StartRuleAssistant", file=_debug_log, flush=True)
     print(f"[DEBUG]   ruleAssistantFile: {ruleAssistantFile}", file=_debug_log, flush=True)
     print(f"[DEBUG]   ruleAssistGUIinputfile: {ruleAssistGUIinputfile}", file=_debug_log, flush=True)
@@ -777,7 +777,7 @@ def MainFunction(DB, report, modify=True, fromLRT=False):
     # TEST: Check WebEngine availability BEFORE importing rule_generator_control
     print(f"[DEBUG] PRE-IMPORT TEST: Checking QtWebEngineWidgets...", file=_debug_log, flush=True)
     try:
-        from PyQt5.QtWebEngineWidgets import QWebEngineView as TestQWebEngineView
+        from PyQt6.QtWebEngineWidgets import QWebEngineView as TestQWebEngineView
         print(f"[DEBUG] PRE-IMPORT TEST: QtWebEngineWidgets import SUCCEEDED", file=_debug_log, flush=True)
     except Exception as e:
         print(f"[DEBUG] PRE-IMPORT TEST: QtWebEngineWidgets import FAILED: {type(e).__name__}: {str(e)}", file=_debug_log, flush=True)
