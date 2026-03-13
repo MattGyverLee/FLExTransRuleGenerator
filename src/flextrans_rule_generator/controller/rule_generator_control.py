@@ -449,6 +449,14 @@ class RuleGeneratorControl(QMainWindow):
         self.last_selected_rule = row
         print(f"[DEBUG] _on_rule_selected: setting name text", file=sys.stderr, flush=True)
         self.rule_name_edit.setText(self.selected_rule.name)
+        # Update description field from selected rule
+        self.description_text.blockSignals(True)
+        self.description_text.setPlainText(self.selected_rule.description)
+        self.description_text.blockSignals(False)
+        # Update create permutations checkbox from selected rule
+        self.create_permutations_check.blockSignals(True)
+        self.create_permutations_check.setChecked(self.selected_rule.create_permutations == "yes")
+        self.create_permutations_check.blockSignals(False)
         # Update checkbox state from rule_generator
         self.overwrite_rules_check.blockSignals(True)
         self.overwrite_rules_check.setChecked(self.rule_generator.overwrite_rules)
@@ -467,12 +475,16 @@ class RuleGeneratorControl(QMainWindow):
         self._mark_dirty()
 
     def _on_description_changed(self):
-        # TODO: Description field not yet mapped to rule model
-        pass
+        if self.selected_rule is None:
+            return
+        self.selected_rule.description = self.description_text.toPlainText()
+        self._mark_dirty()
 
-    def _on_create_permutations_changed(self, text: str):
-        # TODO: Create permutations field not yet mapped to rule model
-        pass
+    def _on_create_permutations_changed(self, state: int):
+        if self.selected_rule is None:
+            return
+        self.selected_rule.create_permutations = "yes" if state == Qt.CheckState.Checked else "no"
+        self._mark_dirty()
 
     def _on_overwrite_rules_changed(self, state: int):
         if self.rule_generator is None:

@@ -11,10 +11,14 @@ class FLExTransRule(RuleConstituent):
         self.source: Source = Source()
         self.target: Target = Target()
         self.name: str = ""
+        self.description: str = ""
+        self.create_permutations: str = "no"
 
     def duplicate(self) -> FLExTransRule:
         new_rule = FLExTransRule()
         new_rule.name = self.name
+        new_rule.description = self.description
+        new_rule.create_permutations = self.create_permutations
         new_rule.source = self.source.duplicate()
         new_rule.target = self.target.duplicate()
         return new_rule

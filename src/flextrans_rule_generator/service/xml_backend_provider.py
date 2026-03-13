@@ -39,6 +39,8 @@ class XmlBackEndProvider:
             for rule_elem in rules_elem.findall("FLExTransRule"):
                 rule = FLExTransRule()
                 rule.name = rule_elem.get("name", "")
+                rule.description = rule_elem.get("description", "")
+                rule.create_permutations = rule_elem.get("create_permutations", "no")
 
                 source_elem = rule_elem.find("Source")
                 if source_elem is not None:
@@ -160,7 +162,12 @@ class XmlBackEndProvider:
         lines.append("  <FLExTransRules>")
 
         for rule in self.rule_generator.rules:
-            lines.append(f'    <FLExTransRule name="{rule.name}">')
+            attrs = f'name="{rule.name}"'
+            if rule.description:
+                attrs += f' description="{rule.description}"'
+            if rule.create_permutations != "no":
+                attrs += f' create_permutations="{rule.create_permutations}"'
+            lines.append(f"    <FLExTransRule {attrs}>")
             self._write_source(lines, rule.source, 6)
             self._write_target(lines, rule.target, 6)
             lines.append("    </FLExTransRule>")
