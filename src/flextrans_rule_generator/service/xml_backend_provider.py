@@ -9,6 +9,8 @@ from flextrans_rule_generator.model.word import Word, HeadValue
 from flextrans_rule_generator.model.affix import Affix, AffixType
 from flextrans_rule_generator.model.feature import Feature
 from flextrans_rule_generator.model.category import Category
+from flextrans_rule_generator.model.disjoint_feature_set import DisjointFeatureSet
+from flextrans_rule_generator.model.disjoint_feature_value_pairing import DisjointFeatureValuePairing
 
 
 class XmlBackEndProvider:
@@ -20,6 +22,17 @@ class XmlBackEndProvider:
         root = tree.getroot()
 
         gen = FLExTransRuleGenerator()
+
+        # Load overwrite_rules attribute from root element
+        overwrite_attr = root.get("overwrite_rules", "no")
+        gen.overwrite_rules = overwrite_attr == "yes"
+
+        # Load disjoint feature sets
+        disjoint_sets_elem = root.find("DisjointFeatureSets")
+        if disjoint_sets_elem is not None:
+            for disjoint_set_elem in disjoint_sets_elem.findall("DisjointFeatureSet"):
+                disjoint_set = self._parse_disjoint_feature_set(disjoint_set_elem)
+                gen.disjoint_feature_sets.append(disjoint_set)
 
         rules_elem = root.find("FLExTransRules")
         if rules_elem is not None:
@@ -108,6 +121,22 @@ class XmlBackEndProvider:
 
         return affix
 
+    def _parse_disjoint_feature_set(self, disjoint_set_elem: ET.Element) -> DisjointFeatureSet:
+        disjoint_set = DisjointFeatureSet()
+        disjoint_set.co_feature_name = disjoint_set_elem.get("co_feature_name", "")
+        disjoint_set.language = disjoint_set_elem.get("language", "target")
+        disjoint_set.disjoint_name = disjoint_set_elem.get("disjoint_name", "")
+
+        pairings_elem = disjoint_set_elem.find("DisjointFeatureValuePairings")
+        if pairings_elem is not None:
+            for pairing_elem in pairings_elem.findall("DisjointFeatureValuePairing"):
+                co_value = pairing_elem.get("co_feature_value", "")
+                flex_feature = pairing_elem.get("flex_feature_name", "")
+                pairing = DisjointFeatureValuePairing(co_value, flex_feature)
+                disjoint_set.add_pairing(pairing)
+
+        return disjoint_set
+
     def save_data_to_file(self, file_name: str):
         if self.rule_generator is None:
             return
@@ -116,7 +145,18 @@ class XmlBackEndProvider:
         lines.append('<?xml version="1.0" encoding="utf-8"?>')
         lines.append('<!DOCTYPE FLExTransRuleGenerator PUBLIC " -//XMLmind//DTD FLExTransRuleGenerator//EN"')
         lines.append('"FLExTransRuleGenerator.dtd">')
-        lines.append("<FLExTransRuleGenerator>")
+
+        # Add overwrite_rules attribute if true
+        overwrite_attr = ' overwrite_rules="yes"' if self.rule_generator.overwrite_rules else ''
+        lines.append(f"<FLExTransRuleGenerator{overwrite_attr}>")
+
+        # Write disjoint feature sets
+        if self.rule_generator.disjoint_feature_sets:
+            lines.append("  <DisjointFeatureSets>")
+            for disjoint_set in self.rule_generator.disjoint_feature_sets:
+                self._write_disjoint_feature_set(lines, disjoint_set, 4)
+            lines.append("  </DisjointFeatureSets>")
+
         lines.append("  <FLExTransRules>")
 
         for rule in self.rule_generator.rules:
@@ -188,3 +228,20 @@ class XmlBackEndProvider:
         lines.append(f'{pad}<Affix type="{type_str}">')
         self._write_features(lines, affix.features, indent + 2)
         lines.append(f"{pad}</Affix>")
+
+    def _write_disjoint_feature_set(self, lines: list[str], disjoint_set: DisjointFeatureSet, indent: int):
+        pad = " " * indent
+        attrs = f'co_feature_name="{disjoint_set.co_feature_name}" language="{disjoint_set.language}" disjoint_name="{disjoint_set.disjoint_name}"'
+        lines.append(f"{pad}<DisjointFeatureSet {attrs}>")
+        self._write_disjoint_feature_value_pairings(lines, disjoint_set.feature_value_pairings, indent + 2)
+        lines.append(f"{pad}</DisjointFeatureSet>")
+
+    def _write_disjoint_feature_value_pairings(self, lines: list[str], pairings: list, indent: int):
+        pad = " " * indent
+        if not pairings:
+            lines.append(f"{pad}<DisjointFeatureValuePairings />")
+        else:
+            lines.append(f"{pad}<DisjointFeatureValuePairings>")
+            for pairing in pairings:
+                lines.append(f'{pad}  <DisjointFeatureValuePairing co_feature_value="{pairing.co_feature_value}" flex_feature_name="{pairing.flex_feature_name}" />')
+            lines.append(f"{pad}</DisjointFeatureValuePairings>")

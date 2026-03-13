@@ -152,6 +152,7 @@ from flextrans_rule_generator.controller import strings
 from flextrans_rule_generator.controller.web_bridge import WebBridge
 from flextrans_rule_generator.controller.category_chooser import CategoryChooser
 from flextrans_rule_generator.controller.feature_value_chooser import FeatureValueChooser
+from flextrans_rule_generator.controller.disjoint_features_dialog import DisjointFeaturesDialog
 from flextrans_rule_generator.model.rule_generator import FLExTransRuleGenerator
 from flextrans_rule_generator.model.rule import FLExTransRule
 from flextrans_rule_generator.model.rule_constituent import RuleConstituent
@@ -252,6 +253,7 @@ class RuleGeneratorControl(QMainWindow):
         # Checkbox and button at bottom of left pane
         bottom_layout = QHBoxLayout()
         self.overwrite_rules_check = QCheckBox(strings.OVERWRITE_RULES)
+        self.overwrite_rules_check.stateChanged.connect(self._on_overwrite_rules_changed)
         bottom_layout.addWidget(self.overwrite_rules_check)
         self.btn_set_disjoint = QPushButton(strings.SET_DISJOINT_FEATURES)
         self.btn_set_disjoint.clicked.connect(self._on_set_disjoint_features)
@@ -447,6 +449,10 @@ class RuleGeneratorControl(QMainWindow):
         self.last_selected_rule = row
         print(f"[DEBUG] _on_rule_selected: setting name text", file=sys.stderr, flush=True)
         self.rule_name_edit.setText(self.selected_rule.name)
+        # Update checkbox state from rule_generator
+        self.overwrite_rules_check.blockSignals(True)
+        self.overwrite_rules_check.setChecked(self.rule_generator.overwrite_rules)
+        self.overwrite_rules_check.blockSignals(False)
         print(f"[DEBUG] _on_rule_selected: calling _show_rule_in_web_page", file=sys.stderr, flush=True)
         self._show_rule_in_web_page()
         print(f"[DEBUG] _on_rule_selected: finished", file=sys.stderr, flush=True)
@@ -468,9 +474,22 @@ class RuleGeneratorControl(QMainWindow):
         # TODO: Create permutations field not yet mapped to rule model
         pass
 
+    def _on_overwrite_rules_changed(self, state: int):
+        if self.rule_generator is None:
+            return
+        self.rule_generator.overwrite_rules = self.overwrite_rules_check.isChecked()
+        self._mark_dirty()
+
     def _on_set_disjoint_features(self):
-        # TODO: Implement set disjoint features
-        pass
+        if self.rule_generator is None:
+            return
+        dialog = DisjointFeaturesDialog(
+            self,
+            self.rule_generator.disjoint_feature_sets
+        )
+        if dialog.exec_() == QDialog.Accepted:
+            self.rule_generator.disjoint_feature_sets = dialog.get_disjoint_sets()
+            self._mark_dirty()
 
     # ------------------------------------------------------------------
     # Web page display
