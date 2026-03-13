@@ -313,6 +313,7 @@ class RuleGeneratorControl(QMainWindow):
 
         top_splitter.setStretchFactor(0, 1)
         top_splitter.setStretchFactor(1, 1)
+        top_splitter.setSizes([500, 500])  # 50/50 split
         right_pane.addWidget(top_splitter)
 
         # Bottom section: tree diagram
