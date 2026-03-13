@@ -80,75 +80,18 @@ from PyQt6.QtWidgets import QApplication
 # This MUST happen before ANY attempt to import QtWebEngineWidgets
 QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts, True)
 
-# Set up debug logging
-_debug_log = open(os.path.join(os.path.expanduser("~"), "RuleAssistantPY_debug.log"), "w", buffering=1)
-
-# DIAGNOSTICS: Log Python executable and paths
-_diag_log = os.path.join(os.path.expanduser("~"), "RuleAssistantPY_diagnostics.log")
-with open(_diag_log, "w") as f:
-    f.write(f"Python executable: {sys.executable}\n")
-    f.write(f"Python version: {sys.version}\n")
-    f.write(f"sys.path:\n")
-    for p in sys.path:
-        f.write(f"  {p}\n")
-    # Check which PyQt6 is being used
-    import PyQt6
-    f.write(f"PyQt6 location: {PyQt6.__file__}\n")
-try:
-        from PyQt6.QtWebEngineWidgets import QWebEngineView
-        f.write(f"QtWebEngineWidgets: AVAILABLE\n")
-    except:
-        f.write(f"QtWebEngineWidgets: NOT AVAILABLE\n")
-
-# CRITICAL: Import QtWebEngineWidgets BEFORE flextoolslib to avoid interference
-import sys as _sys
+# Import WebEngine before flextoolslib to avoid interference
 _webengine_imports = {}
-_webengine_log = os.path.expanduser(r"~\RuleAssistantWebEngineDebug.log")
-
-def _cache_log(msg):
-    try:
-        with open(_webengine_log, 'a') as f:
-            f.write(msg + '\n')
-    except:
-        pass
-
-_cache_log("=== RuleAssistantPY.py: Creating WebEngine cache ===")
-_cache_log(f"sys.path[0]: {sys.path[0] if sys.path else 'EMPTY'}")
-
-    try:
-    _cache_log("Attempting: from PyQt6.QtWebEngineWidgets import QWebEngineView")
-    from PyQt6.QtWebEngineWidgets import QWebEngineView as _QWE
-    _cache_log("Success: QWebEngineView imported")
-
-    _cache_log("Attempting: from PyQt6.QtWebChannel import QWebChannel")
-    from PyQt6.QtWebChannel import QWebChannel as _QWC
-    _cache_log("Success: QWebChannel imported")
-
-    _webengine_imports['QWebEngineView'] = _QWE
-    _webengine_imports['QWebChannel'] = _QWC
-    _sys.modules['__webengine_cache__'] = _webengine_imports
-    _cache_log("SUCCESS: WebEngine cache created and stored in sys.modules['__webengine_cache__']")
-    print(f"[DEBUG] WebEngine cache created before flextoolslib", file=_debug_log, flush=True)
-except ImportError as _e:
-    _cache_log(f"ImportError creating cache: {_e}")
-    import traceback as _tb
-    _cache_log(_tb.format_exc())
-    print(f"[DEBUG] WebEngine cache creation failed: {_e}", file=_debug_log, flush=True)
-except Exception as _e:
-    _cache_log(f"Exception creating cache: {type(_e).__name__}: {_e}")
-    import traceback as _tb
-    _cache_log(_tb.format_exc())
-    print(f"[DEBUG] WebEngine cache creation failed: {_e}", file=_debug_log, flush=True)
-
-_cache_log("Before flextoolslib import")
-_cache_log(f"Cache in sys.modules: {bool(sys.modules.get('__webengine_cache__'))}")
-_cache_log(f"Cache content: {sys.modules.get('__webengine_cache__', {}).keys()}")
+try:
+    from PyQt6.QtWebEngineWidgets import QWebEngineView
+    from PyQt6.QtWebChannel import QWebChannel
+    _webengine_imports['QWebEngineView'] = QWebEngineView
+    _webengine_imports['QWebChannel'] = QWebChannel
+    sys.modules['__webengine_cache__'] = _webengine_imports
+except ImportError:
+    pass
 
 from flextoolslib import *
-
-_cache_log("After flextoolslib import")
-_cache_log(f"Cache in sys.modules: {bool(sys.modules.get('__webengine_cache__'))}")
-_cache_log(f"Cache content: {sys.modules.get('__webengine_cache__', {}).keys()}")
 
 import Mixpanel
 import InterlinData
@@ -593,44 +536,31 @@ def StartRuleAssistant(report, ruleAssistantFile, ruleAssistGUIinputfile,
 
     Returns (saved, rule_index_or_None, request_lrt).
     """
-    print(f"[DEBUG] StartRuleAssistant called", file=_debug_log, flush=True)
     try:
-        print(f"[DEBUG] Importing rule generator modules...", file=_debug_log, flush=True)
         from flextrans_rule_generator.service.xml_backend_provider import (
             XmlBackEndProvider,
         )
         from flextrans_rule_generator.service.xml_backend_provider_flex_data import (
             XmlBackEndProviderFLExData,
         )
-        print(f"[DEBUG] About to import RuleGeneratorControl...", file=_debug_log, flush=True)
         from flextrans_rule_generator.controller.rule_generator_control import (
             RuleGeneratorControl,
             WEBENGINE_AVAILABLE,
         )
         import flextrans_rule_generator.controller.rule_generator_control as rgc_module
-        print(f"[DEBUG] rule_generator_control module location: {rgc_module.__file__}", file=_debug_log, flush=True)
-        print(f"[DEBUG] Rule generator modules imported successfully", file=_debug_log, flush=True)
-        print(f"[DEBUG] WEBENGINE_AVAILABLE = {WEBENGINE_AVAILABLE}", file=_debug_log, flush=True)
         # Try to get diagnostic status if available
         _import_status = getattr(rgc_module, '_WEBENGINE_IMPORT_STATUS', 'unknown')
-        print(f"[DEBUG] WEBENGINE_IMPORT_STATUS = {_import_status}", file=_debug_log, flush=True)
 
         # Load rule data
-        print(f"[DEBUG] Loading rule data from {ruleAssistantFile}", file=_debug_log, flush=True)
         provider = XmlBackEndProvider()
         provider.load_data_from_file(ruleAssistantFile)
-        print(f"[DEBUG] Rule data loaded", file=_debug_log, flush=True)
 
         # Load FLEx category/feature data
-        print(f"[DEBUG] Loading FLEx data from {ruleAssistGUIinputfile}", file=_debug_log, flush=True)
         flex_provider = XmlBackEndProviderFLExData()
         flex_provider.load_data_from_file(ruleAssistGUIinputfile)
-        print(f"[DEBUG] FLEx data loaded", file=_debug_log, flush=True)
 
         # Create and configure the GUI window
-        print(f"[DEBUG] Creating RuleGeneratorControl window...", file=_debug_log, flush=True)
         window = RuleGeneratorControl()
-        print(f"[DEBUG] Window created, configuring...", file=_debug_log, flush=True)
         window.rule_generator = provider.rule_generator
         window.provider = provider
         window.rule_file_path = ruleAssistantFile
@@ -639,17 +569,13 @@ def StartRuleAssistant(report, ruleAssistantFile, ruleAssistGUIinputfile,
         # Set interface language code to match FlexTools
         try:
             window.interface_lang_code = Utils.getInterfaceLangCode()
-            print(f"[DEBUG] Interface language code set: {window.interface_lang_code}", file=_debug_log, flush=True)
         except AttributeError:
             # If window doesn't support interface_lang_code, that's ok - it will use system default
-            print(f"[DEBUG] Window does not have interface_lang_code attribute, using default", file=_debug_log, flush=True)
-        print(f"[DEBUG] Window configured", file=_debug_log, flush=True)
+            pass
 
         # Load test data if available
         if testDataFile and os.path.isfile(testDataFile):
-            print(f"[DEBUG] Loading test data from {testDataFile}", file=_debug_log, flush=True)
             window.set_test_data_file(testDataFile)
-            print(f"[DEBUG] Test data loaded", file=_debug_log, flush=True)
 
         # Capture results before the window is destroyed
         result_holder = {"exit_code": "", "request_lrt": False}
@@ -658,12 +584,9 @@ def StartRuleAssistant(report, ruleAssistantFile, ruleAssistGUIinputfile,
             result_holder["exit_code"] = window.exit_code
             result_holder["request_lrt"] = window.request_lrt
 
-        print(f"[DEBUG] Filling rules list...", file=_debug_log, flush=True)
         window.fill_rules_list()
-        print(f"[DEBUG] Rules list filled", file=_debug_log, flush=True)
 
         # Run a local event loop so this function blocks until the window closes.
-        print(f"[DEBUG] Setting up event loop...", file=_debug_log, flush=True)
         from PyQt6.QtCore import QEventLoop
 
         loop = QEventLoop()
@@ -671,18 +594,14 @@ def StartRuleAssistant(report, ruleAssistantFile, ruleAssistGUIinputfile,
         original_close = window.closeEvent
 
         def patched_close(event):
-            print(f"[DEBUG] Window close event triggered", file=_debug_log, flush=True)
             _on_close()
             original_close(event)
             if event.isAccepted():
                 loop.quit()
 
         window.closeEvent = patched_close
-        print(f"[DEBUG] Showing window...", file=_debug_log, flush=True)
         window.show()
-        print(f"[DEBUG] Window shown, entering event loop...", file=_debug_log, flush=True)
         loop.exec()
-        print(f"[DEBUG] Event loop exited", file=_debug_log, flush=True)
 
         # Read captured results
         lrt = (not fromLRT) and result_holder["request_lrt"]
@@ -701,9 +620,6 @@ def StartRuleAssistant(report, ruleAssistantFile, ruleAssistGUIinputfile,
             return (False, None, lrt)
 
     except Exception as e:
-        print(f"[ERROR] Exception in StartRuleAssistant: {str(e)}", file=_debug_log, flush=True)
-        traceback.print_exc(file=_debug_log)
-        _debug_log.flush()
         report.Error(
             _translate(
                 "RuleAssistant",
@@ -716,15 +632,12 @@ def StartRuleAssistant(report, ruleAssistantFile, ruleAssistGUIinputfile,
 # ----------------------------------------------------------------
 # The main processing function
 def MainFunction(DB, report, modify=True, fromLRT=False):
-    print(f"[DEBUG] MainFunction called", file=_debug_log, flush=True)
 
     translators = []
     app = QApplication.instance()
 
     if app is None:
-        print(f"[DEBUG] Creating new QApplication instance", file=_debug_log, flush=True)
         app = QApplication([])
-    print(f"[DEBUG] QApplication ready", file=_debug_log, flush=True)
 
     Utils.loadTranslations(
         librariesToTranslate + [TRANSL_TS_NAME], translators, loadBase=True
@@ -769,22 +682,16 @@ def MainFunction(DB, report, modify=True, fromLRT=False):
     testData = GetTestDataFile(report, DB, configMap)
 
     # Start the Rule Assistant GUI (now runs in-process via PyQt6)
-    print(f"[DEBUG] About to call StartRuleAssistant", file=_debug_log, flush=True)
-    print(f"[DEBUG]   ruleAssistantFile: {ruleAssistantFile}", file=_debug_log, flush=True)
-    print(f"[DEBUG]   ruleAssistGUIinputfile: {ruleAssistGUIinputfile}", file=_debug_log, flush=True)
-    print(f"[DEBUG]   testData: {testData}", file=_debug_log, flush=True)
 
     # TEST: Check WebEngine availability BEFORE importing rule_generator_control
-    print(f"[DEBUG] PRE-IMPORT TEST: Checking QtWebEngineWidgets...", file=_debug_log, flush=True)
     try:
         from PyQt6.QtWebEngineWidgets import QWebEngineView as TestQWebEngineView
-        print(f"[DEBUG] PRE-IMPORT TEST: QtWebEngineWidgets import SUCCEEDED", file=_debug_log, flush=True)
-    except Exception as e:
-        print(f"[DEBUG] PRE-IMPORT TEST: QtWebEngineWidgets import FAILED: {type(e).__name__}: {str(e)}", file=_debug_log, flush=True)
+    except Exception:
+        pass
+
     saved, rule, lrt = StartRuleAssistant(
         report, ruleAssistantFile, ruleAssistGUIinputfile, testData, fromLRT=fromLRT
     )
-    print(f"[DEBUG] StartRuleAssistant returned: saved={saved}, rule={rule}, lrt={lrt}", file=_debug_log, flush=True)
 
     ruleCount = None
 

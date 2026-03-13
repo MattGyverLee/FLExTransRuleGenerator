@@ -1,129 +1,31 @@
 from pathlib import Path
 from typing import Optional
 import sys
-import os
 
-# *** CRITICAL: Ensure we use system Python 3.11's packages ***
-_sys_py311_site = r"C:\Program Files\Python311\Lib\site-packages"
-if _sys_py311_site not in sys.path:
-    sys.path.insert(0, _sys_py311_site)
-
-# IMMEDIATE TEST: Confirm this module is being imported at all
-try:
-    with open(r"C:\Users\thoua\RuleGeneratorControl_IMPORTED.txt", 'w') as f:
-        f.write("Module import started\n")
-except Exception as e:
-    pass
-
-# NOTE: Qt.AA_ShareOpenGLContexts is already set in RuleAssistantPY.py
-# before QApplication is created, so we don't set it here
 from PyQt6.QtCore import Qt, QCoreApplication
 
-# CRITICAL: Try to import WebEngine
+# Try to import WebEngine; fall back gracefully if unavailable
 QWebEngineView = None
 QWebChannel = None
 WEBENGINE_AVAILABLE = False
 
-# Direct import attempt - report any real errors
-_WEBENGINE_ERROR = None
-try:
-    from PyQt6.QtWebEngineWidgets import QWebEngineView as _TEST_QWE
-    from PyQt6.QtWebChannel import QWebChannel as _TEST_QWC
-    _WEBENGINE_WORKS = True
-except ImportError as _imp_err:
-    _WEBENGINE_WORKS = False
-    _WEBENGINE_ERROR = str(_imp_err)
-except Exception as _gen_err:
-    _WEBENGINE_WORKS = False
-    _WEBENGINE_ERROR = f"{type(_gen_err).__name__}: {str(_gen_err)}"
-
-# CRITICAL: Write the import error to a file immediately so we can see what's failing
-try:
-    with open(r"C:\Users\thoua\RuleGeneratorControl_ERROR.txt", 'w') as _f:
-        _f.write(f"WebEngine import works: {_WEBENGINE_WORKS}\n")
-        if not _WEBENGINE_WORKS and _WEBENGINE_ERROR:
-            _f.write(f"Error: {_WEBENGINE_ERROR}\n")
-        else:
-            _f.write("No error captured\n")
-except Exception as _e:
-    pass
-
-# Set up error logging for WebEngine import debugging
-# Use a dedicated log file to avoid file locking issues
-_webengine_log_path = r"C:\Users\thoua\RuleGeneratorControl_WebEngine.log"
-def _log_webengine_debug(msg):
-    try:
-        with open(_webengine_log_path, 'a') as f:
-            f.write(f"{msg}\n")
-    except Exception as _e:
-        # If logging fails, just continue - don't crash
-        pass
-
-# Clear previous log and start fresh
-try:
-    with open(_webengine_log_path, 'w') as f:
-        f.write("=== rule_generator_control.py WebEngine import logging ===\n")
-except:
-    pass
-
-_log_webengine_debug(f"\n=== rule_generator_control.py import started ===")
-_log_webengine_debug(f"sys.path[0:3]: {sys.path[0:3]}")
-
-# First, check if imports were cached by RuleAssistantPY.py before flextoolslib was loaded
+# Check if imports were cached by RuleAssistantPY.py (before flextoolslib import)
 _webengine_cache = sys.modules.get('__webengine_cache__', {})
-
-# DIRECT FILE WRITE - bypass any logging issues
-try:
-    with open(r"C:\Users\thoua\RuleGeneratorControl_CACHE.log", 'w') as _f:
-        _f.write(f"Cache object exists: {_webengine_cache is not None}\n")
-        _f.write(f"Cache bool: {bool(_webengine_cache)}\n")
-        _f.write(f"Cache keys: {list(_webengine_cache.keys()) if _webengine_cache else 'NONE'}\n")
-        _f.write(f"Has QWebEngineView: {'QWebEngineView' in _webengine_cache}\n")
-        _f.write(f"Has QWebChannel: {'QWebChannel' in _webengine_cache}\n")
-except Exception as _e:
-    pass
-
-_log_webengine_debug(f"Cache exists: {bool(_webengine_cache)}")
-_log_webengine_debug(f"Cache keys: {list(_webengine_cache.keys()) if _webengine_cache else 'NONE'}")
 
 if 'QWebEngineView' in _webengine_cache and 'QWebChannel' in _webengine_cache:
     QWebEngineView = _webengine_cache['QWebEngineView']
     QWebChannel = _webengine_cache['QWebChannel']
     WEBENGINE_AVAILABLE = True
-    _log_webengine_debug("SUCCESS: Using cached WebEngine imports from RuleAssistantPY.py")
 else:
-    _log_webengine_debug("Cache not available, attempting normal import...")
-    # Otherwise, try to import normally
+    # Otherwise, try normal import
     try:
-        _log_webengine_debug("Attempting: from PyQt6.QtWebEngineWidgets import QWebEngineView")
         from PyQt6.QtWebEngineWidgets import QWebEngineView
-        _log_webengine_debug("Success: QWebEngineView imported")
-
-        _log_webengine_debug("Attempting: from PyQt6.QtWebChannel import QWebChannel")
         from PyQt6.QtWebChannel import QWebChannel
-        _log_webengine_debug("Success: QWebChannel imported")
-
         WEBENGINE_AVAILABLE = True
-        _log_webengine_debug("SUCCESS: WebEngine imports successful (normal import)")
-    except ImportError as e:
-        _log_webengine_debug(f"ImportError: {type(e).__name__}: {e}")
-        import traceback
-        _log_webengine_debug(f"Traceback:\n{traceback.format_exc()}")
+    except ImportError:
         QWebEngineView = None
         QWebChannel = None
         WEBENGINE_AVAILABLE = False
-        _log_webengine_debug("FAILED: WebEngine import failed with ImportError")
-    except Exception as e:
-        _log_webengine_debug(f"Exception: {type(e).__name__}: {e}")
-        import traceback
-        _log_webengine_debug(f"Traceback:\n{traceback.format_exc()}")
-        QWebEngineView = None
-        QWebChannel = None
-        WEBENGINE_AVAILABLE = False
-        _log_webengine_debug("FAILED: WebEngine import failed with Exception")
-
-_log_webengine_debug(f"Final WEBENGINE_AVAILABLE: {WEBENGINE_AVAILABLE}")
-_log_webengine_debug("=== rule_generator_control.py import completed ===")
 
 # NOW import the rest of PyQt6
 from PyQt6.QtCore import QSettings, QUrl
