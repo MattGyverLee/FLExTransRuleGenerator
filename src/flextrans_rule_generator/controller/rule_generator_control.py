@@ -483,9 +483,19 @@ class RuleGeneratorControl(QMainWindow):
     def _on_set_disjoint_features(self):
         if self.rule_generator is None:
             return
+
+        if self.flex_data is None:
+            QMessageBox.warning(
+                self,
+                "Warning",
+                "FLEx data is not available. Cannot open disjoint features dialog."
+            )
+            return
+
         dialog = DisjointFeaturesDialog(
             self,
-            self.rule_generator.disjoint_feature_sets
+            self.rule_generator.disjoint_feature_sets,
+            self.flex_data
         )
         if dialog.exec_() == QDialog.Accepted:
             self.rule_generator.disjoint_feature_sets = dialog.get_disjoint_sets()
